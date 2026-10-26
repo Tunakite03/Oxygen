@@ -91,7 +91,7 @@ it('provides fallback without a canvas and restores caller-owned visibility on d
 });
 
 it('loads a real GLB and releases its geometry and material only once', async () => {
-  const bytes = readFileSync('examples/public/models/triangle.glb');
+  const bytes = readFileSync('website/public/models/triangle.glb');
   vi.stubGlobal('fetch', vi.fn(async () => new Response(bytes)));
   const scope = new GLTFAssets();
   const asset = await scope.load('https://example.test/triangle.glb');

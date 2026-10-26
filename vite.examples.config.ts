@@ -22,6 +22,7 @@ export default defineConfig({
         particles: resolve(root, 'particles/index.html'),
         physics: resolve(root, 'physics/index.html'),
         router: resolve(root, 'router/index.html'),
+        reference: resolve(root, 'reference/index.html'),
       },
     },
   },

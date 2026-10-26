@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API reference · Oxygen</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav class="toc" aria-label="Contents">
+        <p class="brand">Oxygen <span>0.3.0-beta.1</span></p>
+        <ol>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#quick-start">Quick start</a></li>
+          <li><a href="#loop">Frame loop</a></li>
+          <li><a href="#tweens">Tweens and DOM</a></li>
+          <li><a href="#events">Events and state</a></li>
+          <li><a href="#input">Pointer input</a></li>
+          <li><a href="#pipeline">Render pipeline</a></li>
+          <li><a href="#shaders">Shaders and materials</a></li>
+          <li><a href="#post">Post-processing</a></li>
+          <li><a href="#particles">GPU particles</a></li>
+          <li><a href="#physics">Physics</a></li>
+          <li><a href="#router">Router</a></li>
+          <li><a href="#story">Scroll and story</a></li>
+          <li><a href="#assets">Assets</a></li>
+          <li><a href="#audio">Audio</a></li>
+          <li><a href="#text">Text</a></li>
+          <li><a href="#quality">Quality and motion</a></li>
+          <li><a href="#math">Math and random</a></li>
+          <li><a href="#errors">Errors</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <header>
+          <h1>API reference</h1>
+          <p class="lead">
+            <code>@tunn/oxygen</code> is a WebGL 2 engine for creative sites, built on three.js. Each section lists the
+            public exports of one area, shows how they fit together and, where it matters, runs a live demo against the
+            real engine. Deeper guides live in <code>docs/</code> in the repository.
+          </p>
+        </header>
+
+        <section id="overview">
+          <h2>Overview</h2>
+          <p>
+            The package is ESM only and ships JavaScript with declarations. Importing the root entry is safe in Node and
+            during SSR. Creating a renderer, starting the frame loop and constructing input or audio adapters need a
+            browser.
+          </p>
+          <table>
+            <thead><tr><th>Dependency</th><th>Version</th><th>Required</th></tr></thead>
+            <tbody>
+              <tr><td><code>three</code></td><td>~0.186.1</td><td>Yes</td></tr>
+              <tr><td><code>zod</code></td><td>^4.0.0</td><td>Yes</td></tr>
+              <tr><td><code>@dimforge/rapier3d-compat</code></td><td>~0.21.0</td><td>Only for <code>PhysicsWorld</code></td></tr>
+            </tbody>
+          </table>
+          <pre><code>npm install @tunn/oxygen three zod
+npm install @dimforge/rapier3d-compat   # only for PhysicsWorld</code></pre>
+          <p>
+            The package is not on npm yet. Depend on the repository pinned to a commit, as described in the README. Rigid
+            body physics is imported from <code>@tunn/oxygen/physics</code>; everything else comes from the root entry.
+          </p>
+        </section>
+
+        <section id="quick-start">
+          <h2>Quick start</h2>
+          <p>
+            A scene with post-processing and adaptive quality. <code>startLoop()</code> must run before the render
+            function does anything, and <code>warmUp()</code> compiles every program before the first frame.
+          </p>
+          <pre><code>import * as THREE from 'three';
+import {
+  BloomPass, ColorGradePass, PostStack, QualityManager, createPipeline, detectGPU, onFrame, onResize,
+  setRenderFunction, stage, startLoop,
+} from '@tunn/oxygen';
+
+startLoop();
+const pipeline = createPipeline(document.querySelector&lt;HTMLElement&gt;('.stage')!, { hdr: true });
+const camera = new THREE.PerspectiveCamera(45, stage.width / stage.height, 0.1, 100);
+camera.position.z = 5;
+onResize(() => {
+  camera.aspect = stage.width / stage.height;
+  camera.updateProjectionMatrix();
+});
+
+const post = new PostStack(pipeline.renderer);
+post.add(new BloomPass({ threshold: 0.9 }));
+post.add(new ColorGradePass({ toneMapping: 'aces', outputSRGB: true }));
+pipeline.setPost(post);
+
+const quality = new QualityManager({
+  levels: [{ name: 'low', dpr: 1 }, { name: 'high', dpr: 2 }],
+  initial: { tier: detectGPU(pipeline.renderer.getContext()).tier },
+});
+quality.bindPipeline(pipeline);
+quality.start();
+
+const mesh = new THREE.Mesh(
+  new THREE.TorusKnotGeometry(1, 0.3, 200, 24),
+  new THREE.MeshStandardMaterial({ emissive: 0x3d7bff, emissiveIntensity: 4 }),
+);
+pipeline.scene.add(mesh, new THREE.HemisphereLight(0xffffff, 0x222222, 1));
+onFrame((_time, delta) => (mesh.rotation.y += delta * 0.0005));
+await pipeline.warmUp(camera);
+setRenderFunction(() => pipeline.render(camera));</code></pre>
+        </section>
+
+        <section id="loop">
+          <h2>Frame loop</h2>
+          <p>
+            One RAF loop drives everything. Each frame runs tweens first, then the four phases in order, then the render
+            function, then <code>postRender</code>. <code>frame.delta</code> is in milliseconds and capped at 200.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>startLoop(): void</code></td><td>Starts the loop and installs the viewport and pointer listeners. Idempotent.</td></tr>
+              <tr><td><code>stopLoop(): void</code></td><td>Cancels the next frame. Subscriptions stay registered, so <code>startLoop()</code> resumes them.</td></tr>
+              <tr><td><code>onFrame(cb, phase?): () =&gt; void</code></td><td><code>cb(time, delta)</code> runs every frame. <code>phase</code> is <code>'loop'</code> (default), <code>'afterLoops'</code>, <code>'beforeRender'</code> or <code>'postRender'</code>.</td></tr>
+              <tr><td><code>setRenderFunction(fn): () =&gt; void</code></td><td>Installs the one render callback. The returned cleanup clears it only if it is still installed.</td></tr>
+              <tr><td><code>frame</code></td><td><code>{ time, delta, count, hzMultiplier }</code>, updated each frame.</td></tr>
+              <tr><td><code>Component</code></td><td>A <code>THREE.Group</code> whose <code>startRender</code> loops run only while it and its ancestors are visible.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="tweens">
+          <h2>Tweens and DOM</h2>
+          <p>
+            <code>tween</code> animates numeric fields of any object. Eases are named: any Penner ease such as
+            <code>easeOutCubic</code> or <code>easeInOutQuad</code>, <code>linear</code>, or a custom
+            <code>cubic-bezier</code> registered with <code>addCustomEase</code>. A new tween on the same object replaces
+            the earlier ones unless it sets <code>multiTween</code>. Decorative tweens finish at once under reduced motion;
+            pass <code>'essential'</code> as the last argument when the motion carries meaning.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>tween(object, props, time, ease?, delay?, motion?)</code></td><td>Returns a <code>Tween</code>. <code>time</code> and <code>delay</code> are in ms.</td></tr>
+              <tr><td><code>Tween</code></td><td>Chainable: <code>onUpdate(k =&gt; …)</code>, <code>onComplete(fn)</code>. Methods: <code>promise()</code>, <code>pause()</code>, <code>resume()</code>, <code>stop()</code>.</td></tr>
+              <tr><td><code>tweenUniform(uniforms, name, value, time, ease?, delay?)</code></td><td>Tweens a float uniform in <code>uniforms[name].value</code>.</td></tr>
+              <tr><td><code>clearTween(object)</code></td><td>Stops every tween on the object.</td></tr>
+              <tr><td><code>addCustomEase(name, 'cubic-bezier(x1, y1, x2, y2)')</code></td><td>Registers a named ease. Registering an existing name is ignored.</td></tr>
+              <tr><td><code>delay(ms)</code>, <code>defer()</code></td><td>Promises that resolve after a timeout or on the next animation frame.</td></tr>
+              <tr><td><code>dom(el).set(props)</code></td><td>Applies <code>x</code>, <code>y</code>, <code>scale</code>, <code>scaleX</code> and <code>opacity</code> immediately and cancels running DOM tweens on that element.</td></tr>
+              <tr><td><code>dom(el).tween(props, time, ease, delay?)</code></td><td>Tweens the same properties and returns a promise. <code>clear: true</code> removes the inline transform at the end. <code>x</code> and <code>y</code> take numbers (px) or strings such as <code>'50%'</code>, <code>'10vw'</code>.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="demo" data-demo="tweens">
+            <h3>Live demo: numeric and DOM tweens</h3>
+            <div class="demo-controls">
+              <button id="tween-toggle" type="button">Move card and fill bar</button>
+              <label>
+                Motion
+                <select id="motion">
+                  <option value="system">System</option>
+                  <option value="reduce">Reduce</option>
+                  <option value="full">Full</option>
+                </select>
+              </label>
+            </div>
+            <div class="track" id="tween-track">
+              <div class="card" id="tween-card"></div>
+            </div>
+            <div class="meter"><div class="bar" id="tween-bar"></div></div>
+            <p class="note">
+              The card uses <code>dom(el).tween</code>; the bar uses a <code>tween</code> on a plain object and reads it in
+              <code>onUpdate</code>. With <em>Reduce</em>, or with <em>System</em> when the OS asks for less motion, decorative
+              tweens jump straight to their end values.
+            </p>
+            <pre><code>const meter = { value: 0 };
+tween(meter, { value: 1 }, 900, 'easeInOutCubic').onUpdate(() => {
+  bar.style.transform = `scaleX(${meter.value})`;
+});
+void dom(card).tween({ x: 160, opacity: 0.6 }, 600, 'easeOutBack');</code></pre>
+          </div>
+        </section>
+
+        <section id="events">
+          <h2>Events and state</h2>
+          <p>
+            One process-wide event bus and a key/value store. <code>setState</code> emits <code>state:&lt;name&gt;</code> only
+            when the value changes, so <code>bindState</code> can drive the UI from state without polling.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>emit(name, value?)</code></td><td>Calls the listeners of <code>name</code> synchronously.</td></tr>
+              <tr><td><code>listen(name, cb)</code></td><td>Subscribes. Returns the unsubscribe function.</td></tr>
+              <tr><td><code>setState(name, value)</code></td><td>Stores the value and notifies <code>bindState</code> listeners when it differs from the previous value.</td></tr>
+              <tr><td><code>getState(name)</code></td><td>The stored value, or <code>undefined</code>.</td></tr>
+              <tr><td><code>requireState(name)</code></td><td>The stored value; throws if it was never set.</td></tr>
+              <tr><td><code>bindState(name, cb)</code></td><td>Calls <code>cb</code> now if a value exists, then on every change. Returns the unsubscribe function.</td></tr>
+              <tr><td><code>whenState(name)</code></td><td>Resolves with the first value, immediately if one is already stored.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="demo" data-demo="events">
+            <h3>Live demo: bus and bound state</h3>
+            <div class="demo-controls">
+              <button id="ping" type="button">Emit Demo/ping</button>
+              <span>Pings received: <strong id="ping-count">0</strong></span>
+            </div>
+            <label class="field">
+              Gain
+              <input id="gain" type="range" min="0" max="1" step="0.01" value="0.5" />
+              <output id="gain-value">0.50</output>
+            </label>
+            <pre><code>listen&lt;number&gt;('Demo/ping', count =&gt; { pingCount.textContent = String(count); });
+emit('Demo/ping', pings);
+
+setState('demo.gain', 0.5);
+bindState&lt;number&gt;('demo.gain', value =&gt; { gainValue.textContent = value.toFixed(2); });
+gain.addEventListener('input', () =&gt; setState('demo.gain', Number(gain.value)));</code></pre>
+          </div>
+        </section>
+
+        <section id="input">
+          <h2>Pointer input</h2>
+          <p>
+            <code>PointerTracker</code> follows one element's primary pointer. It reports CSS pixels, normalised device
+            coordinates, a smoothed position that eases each frame, velocity, and tap and drag gestures. Call
+            <code>update(delta)</code> once per frame; <code>destroy()</code> removes its listeners.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>new PointerTracker(element?, options?)</code></td><td>Defaults to <code>window</code>. Options: <code>velocitySmoothing</code> (0.05 s), <code>follow</code> (0.15), <code>dragThreshold</code> (6 px), <code>tapMaxMs</code> (300).</td></tr>
+              <tr><td><code>.on(event, listener)</code></td><td><code>'tap'</code>, <code>'dragStart'</code>, <code>'drag'</code> or <code>'dragEnd'</code>. Returns the unsubscribe function.</td></tr>
+              <tr><td><code>.position</code>, <code>.ndc</code>, <code>.uv</code></td><td>CSS px from the top-left, −1…1 with y up, and 0…1 with y up.</td></tr>
+              <tr><td><code>.smoothed</code>, <code>.velocity</code>, <code>.speed</code></td><td>Eased position, smoothed px/s, and the magnitude of the velocity.</td></tr>
+              <tr><td><code>.down</code>, <code>.inside</code>, <code>.drag</code></td><td>Pressed, hovered and drag state (<code>active</code>, <code>start</code>, <code>delta</code>).</td></tr>
+              <tr><td><code>update(deltaMs)</code>, <code>destroy()</code></td><td>Per-frame easing; removes listeners.</td></tr>
+              <tr><td><code>pointerToPlane(ndc, camera, plane, out?)</code></td><td>The point where the ray through <code>ndc</code> meets the plane, or <code>null</code>.</td></tr>
+              <tr><td><code>Interaction3D</code>, <code>interaction3d()</code></td><td>Raycasts the pointer against meshes and reports hits.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="demo" data-demo="pointer">
+            <h3>Live demo: pointer tracker</h3>
+            <div class="pad" id="pointer-pad">
+              <div class="dot" id="pointer-dot"></div>
+            </div>
+            <p class="readout" id="pointer-readout">Move or drag over the pad.</p>
+            <pre><code>const tracker = new PointerTracker(pad);
+tracker.on('tap', () =&gt; { taps += 1; });
+onFrame((_time, delta) =&gt; {
+  tracker.update(delta);
+  dot.style.transform = `translate(${tracker.smoothed.x}px, ${tracker.smoothed.y}px)`;
+});</code></pre>
+          </div>
+        </section>
+
+        <section id="pipeline">
+          <h2>Render pipeline</h2>
+          <p>
+            <code>createPipeline</code> owns a WebGL 2 canvas, an MSAA scene buffer (half-float with <code>hdr</code>), a
+            composite or post stack, and pixel-space overlays. A pipeline in <code>container</code> mode sizes to a host
+            element, which suits embedded scenes. <code>dispose()</code> releases everything the pipeline owns and is
+            idempotent; rendering after it throws <code>DisposedError</code>.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>createPipeline(parent, options?)</code></td><td>Options: <code>sizeMode</code> (<code>'viewport'</code> default, or <code>'container'</code>), <code>clearColor</code>, <code>samples</code> (default 4), <code>hdr</code> (default false), <code>flipMirroredWinding</code> (default true).</td></tr>
+              <tr><td><code>pipeline.scene</code>, <code>uiScene</code>, <code>uiCamera</code>, <code>beforePassesScene</code></td><td>Scene graphs. <code>uiScene</code> with <code>uiCamera</code> is the overlay pass; <code>beforePassesScene</code> is a pixel-space overlay drawn into the scene buffer before the composite.</td></tr>
+              <tr><td><code>pipeline.size</code>, <code>dpr</code>, <code>status</code></td><td>Logical size, current pixel ratio, and <code>'ready' | 'lost' | 'disposed'</code>.</td></tr>
+              <tr><td><code>render(camera)</code></td><td>Draws one frame.</td></tr>
+              <tr><td><code>setPost(stack | null)</code>, <code>setComposite(material)</code></td><td>Replaces the final pass. The caller owns the stack; detach it before disposing it.</td></tr>
+              <tr><td><code>setPixelRatio(dpr)</code></td><td>Resizes the canvas, scene buffer and post stack. Used by adaptive quality.</td></tr>
+              <tr><td><code>addPreRender(fn)</code></td><td>Runs off-screen work before the main pass each frame.</td></tr>
+              <tr><td><code>warmUp(camera)</code></td><td>Compiles every program and uploads every texture and geometry, including hidden objects. Run it while the loader is up.</td></tr>
+              <tr><td><code>onContextChange(listener)</code></td><td>Reports context loss and restoration. GPU-only simulation state may need reseeding.</td></tr>
+              <tr><td><code>registerOffscreenPass(object)</code></td><td>Includes a full-screen pass that renders outside the scenes in <code>warmUp</code>.</td></tr>
+              <tr><td><code>createAccessiblePipeline(host, fallback, options?)</code></td><td>Returns <code>{ pipeline, reason, dispose }</code>. Shows <code>fallback</code> when WebGL 2 is unavailable or lost, and hides the canvas from assistive tech.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="demo" data-demo="pipeline">
+            <h3>Live demo: embedded pipeline with teardown</h3>
+            <div class="demo-controls">
+              <button id="mount" type="button">Mount</button>
+              <button id="unmount" type="button">Unmount</button>
+              <span class="status" id="scene-status" role="status"></span>
+            </div>
+            <div class="scene-host" id="scene-host"></div>
+            <pre><code>const pipeline = createPipeline(host, { sizeMode: 'container', clearColor: '#14161c' });
+void pipeline.warmUp(camera);
+const offRender = setRenderFunction(() => pipeline.render(camera));
+
+// On unmount, release every subscription and the pipeline itself:
+offRender();
+pipeline.dispose();</code></pre>
+          </div>
+        </section>
+
+        <section id="shaders">
+          <h2>Shaders and materials</h2>
+          <p>
+            Shaders live in one bundle file. A plain entry is a chunk that other sources pull in with
+            <code>#require(name)</code>. Entries with <code>#!SHADER: Name.vs</code> and <code>Name.fs</code> become
+            shader programs. <code>#test condition</code> blocks are kept or dropped by an evaluator you supply.
+            <code>createShaderMaterial</code> builds a GLSL ES 3.00 <code>RawShaderMaterial</code> and provides
+            <code>time</code>, <code>timeScale</code>, <code>resolution</code>, <code>cameraQuaternion</code> and
+            <code>normalMatrixWorld</code>.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>loadShaderLibrary(url)</code></td><td>Fetches and registers a bundle.</td></tr>
+              <tr><td><code>registerShaderBundle(text)</code>, <code>registerShaderSource(name, code)</code></td><td>Registers bundle text or one named chunk without fetching.</td></tr>
+              <tr><td><code>addShaderTests(evaluator)</code></td><td>Resolves <code>#test</code> conditions to true or false. Return <code>undefined</code> for a condition you do not handle; an unknown condition makes loading throw.</td></tr>
+              <tr><td><code>createShaderMaterial(name, uniforms, options?)</code></td><td>Builds the material. Transparent materials use straight alpha; opaque ones disable blending.</td></tr>
+              <tr><td><code>hasShader(name)</code>, <code>getShaderSource(name)</code></td><td>Lookup. An unknown name throws <code>ShaderNotFoundError</code>.</td></tr>
+              <tr><td><code>globalUniforms</code>, <code>attachWorldNormalMatrix(mesh)</code></td><td>Shared uniforms and a helper that supplies <code>normalMatrixWorld</code> to a mesh.</td></tr>
+            </tbody>
+          </table>
+          <pre><code>addShaderTests((condition, { isMobile }) =&gt; (condition === 'quality.high' ? !isMobile : undefined));
+await loadShaderLibrary('shaders/library.glsl');
+const material = createShaderMaterial('Gradient', { uAlpha: { value: 0 } }, { transparent: true });</code></pre>
+        </section>
+
+        <section id="post">
+          <h2>Post-processing</h2>
+          <p>
+            <code>PostStack</code> chains passes over the scene buffer. Each pass is a <code>PostPass</code> with its own
+            options and an <code>enabled</code> flag. The stack is attached with <code>pipeline.setPost</code>.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>PostStack(renderer)</code></td><td><code>add(pass)</code> appends a pass and returns it.</td></tr>
+              <tr><td><code>BloomPass</code></td><td>Threshold, knee, intensity, radius and mip levels.</td></tr>
+              <tr><td><code>ColorGradePass</code></td><td><code>toneMapping</code> (<code>'none'</code>, <code>'reinhard'</code>, <code>'aces'</code>), <code>outputSRGB</code>, <code>exposure</code>, <code>contrast</code>, <code>saturation</code>.</td></tr>
+              <tr><td><code>LensPass</code></td><td><code>chromaticAberration</code>, <code>vignette</code>, <code>grain</code>.</td></tr>
+              <tr><td><code>FXAAPass</code>, <code>ShaderPass</code>, <code>TransitionPass</code></td><td>Anti-aliasing, a custom shader pass, and screen transitions.</td></tr>
+            </tbody>
+          </table>
+          <p>
+            The full option reference is in <a href="../../docs/post.md">docs/post.md</a>. For a running example, open the
+            <a href="../post/">post-processing demo</a>.
+          </p>
+        </section>
+
+        <section id="particles">
+          <h2>GPU particles</h2>
+          <p>
+            <code>GPUParticles</code> advects particles on the GPU with curl noise and attractors. The particles demo runs
+            up to 262k particles. <code>GPUSimulation</code> is the lower-level simulation it is built on, and
+            <code>NOISE_GLSL</code> exports the noise chunk for custom shaders.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>GPUParticles</code></td><td>Particle system; options cover count, emitter shape, curl and attractors.</td></tr>
+              <tr><td><code>GPUSimulation</code>, <code>NOISE_GLSL</code></td><td>Simulation core and the shared noise GLSL.</td></tr>
+              <tr><td><code>particleTextureSize(count)</code>, <code>seedParticles</code>, <code>sampleEmitter</code>, <code>randomDirection</code></td><td>Texture sizing and seeding helpers.</td></tr>
+            </tbody>
+          </table>
+          <p>Reference: <a href="../../docs/particles.md">docs/particles.md</a>. Live example: <a href="../particles/">GPU particles demo</a>.</p>
+        </section>
+
+        <section id="physics">
+          <h2>Physics</h2>
+          <p>
+            Closed-form springs and Verlet simulation are in the root entry. Rigid bodies are in the subpath, so applications
+            that do not need them never load Rapier.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Entry</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>Spring</code>, <code>VectorSpring</code>, <code>springStep</code></td><td>root</td><td>Damped springs for scalars and vectors. Frame-rate independent.</td></tr>
+              <tr><td><code>VerletWorld</code>, <code>createRope</code>, <code>createCloth</code>, <code>ClothGeometry</code></td><td>root</td><td>Position-based simulation with colliders, ropes and cloth.</td></tr>
+              <tr><td><code>PhysicsWorld</code></td><td><code>@tunn/oxygen/physics</code></td><td>Rapier rigid bodies. Requires <code>@dimforge/rapier3d-compat</code>.</td></tr>
+            </tbody>
+          </table>
+          <pre><code>import { PhysicsWorld } from '@tunn/oxygen/physics';
+import { Spring } from '@tunn/oxygen';</code></pre>
+          <p>Reference: <a href="../../docs/physics.md">docs/physics.md</a>. Live example: <a href="../physics/">physics demo</a>.</p>
+        </section>
+
+        <section id="router">
+          <h2>Router</h2>
+          <p>
+            <code>Router</code> maps paths to views and runs each navigation as an ordered, abortable transition. A newer
+            navigation aborts an older one. Views are created once per route and may load their code lazily.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>new Router(options)</code></td><td>Options: <code>routes</code>, <code>notFound</code>, <code>mode</code> (<code>'history'</code> or <code>'hash'</code>), <code>base</code>, <code>transition</code> (<code>'out-in'</code> or <code>'cross'</code>), <code>interceptLinks</code>, <code>prefetch</code>, <code>focusSelector</code>, <code>root</code>.</td></tr>
+              <tr><td><code>start()</code>, <code>navigate(target, { replace?, force? })</code>, <code>back()</code></td><td>Start on the current location, navigate (resolves to a <code>NavigationResult</code>), and go back in history.</td></tr>
+              <tr><td><code>path(name, params?)</code>, <code>href(name, params?)</code>, <code>resolve(target)</code></td><td>Build a path or link for a named route, or match a target.</td></tr>
+              <tr><td><code>busy</code>, <code>destroy()</code></td><td>Whether a transition is running; tears the router down.</td></tr>
+              <tr><td><code>compilePath</code>, <code>matchPath</code>, <code>buildPath</code></td><td>Path pattern helpers used by the router.</td></tr>
+              <tr><td><code>RouteNotFoundError</code></td><td>Thrown for unmatched paths when no <code>notFound</code> route is set.</td></tr>
+            </tbody>
+          </table>
+          <p>Reference: <a href="../../docs/router.md">docs/router.md</a>. Live example: <a href="../router/">page transitions demo</a>.</p>
+        </section>
+
+        <section id="story">
+          <h2>Scroll and story</h2>
+          <p>
+            <code>VirtualScroll</code> turns wheel, touch and keyboard input into an eased scroll position.
+            <code>ScrollStory</code> stacks <code>StoryScene</code>s top to bottom, drives the camera from that position and
+            moves the matching DOM sections with it.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>VirtualScroll(options)</code></td><td><code>scrollTo(value, time?, ease?)</code>, <code>setTarget(value)</code>, <code>targetY</code>, <code>reset()</code>, <code>destroy()</code>.</td></tr>
+              <tr><td><code>scrollState</code></td><td>Current <code>{ y, delta, max, ready }</code>.</td></tr>
+              <tr><td><code>ScrollStory(pipeline, root)</code></td><td><code>load(configs, onProgress)</code>, <code>start()</code>, <code>scenes</code>, <code>scrollToTop()</code>.</td></tr>
+              <tr><td><code>StoryScene</code></td><td>Subclass with <code>super(name, order)</code>. Override <code>create</code>, <code>animateIn</code>, <code>animateOut</code> and related hooks.</td></tr>
+            </tbody>
+          </table>
+          <p>
+            Each scene's height is given in viewport heights and eases toward <code>mobileHeight</code> as the viewport
+            narrows. The story publishes <code>Story/scrollY</code>, <code>Story/visibleScenes</code> and related state.
+            Emit <code>Global/loaderFinished</code> when the intro ends. The guide shows a full story in
+            <a href="../../docs/guide.md">docs/guide.md</a>.
+          </p>
+        </section>
+
+        <section id="assets">
+          <h2>Assets</h2>
+          <p>
+            Textures are cached one per path and alpha mode. Compressed textures and Draco meshes are opt-in. A
+            <code>GLTFAssets</code> scope owns everything it loads, so disposing the scope releases it.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>getTexture</code>, <code>getRepeatTexture</code>, <code>getKTX2Texture</code>, <code>initTextures</code>, <code>pendingTextureLoads</code></td><td>Cached texture loading, KTX2 transcoder setup and a promise for in-flight loads.</td></tr>
+              <tr><td><code>loadGeometry</code>, <code>configureGeometry</code>, <code>loadSkinAnimation</code></td><td>Loads <code>.bin</code> (Draco) and BufferGeometry JSON, and skeletal animation.</td></tr>
+              <tr><td><code>GLTFAssets({ renderer, dracoDecoderPath?, ktx2TranscoderPath? })</code></td><td><code>load(url, { signal, timeoutMs })</code> returns a handle; <code>dispose()</code> releases the scope.</td></tr>
+              <tr><td><code>createLoadProgress(weights, onChange)</code></td><td>Weighted progress across stages. The value never decreases.</td></tr>
+              <tr><td><code>ConfigStore</code></td><td>Typed reads from a flat key/value document. Wrong types throw <code>ConfigValueError</code>.</td></tr>
+            </tbody>
+          </table>
+          <pre><code>const assets = new GLTFAssets({ renderer: pipeline.renderer, dracoDecoderPath: '/decoders/draco/' });
+const controller = new AbortController();
+const asset = await assets.load('/models/scene.glb', { signal: controller.signal, timeoutMs: 30000 });
+pipeline.scene.add(asset.gltf.scene);
+// On unmount: assets.dispose();</code></pre>
+        </section>
+
+        <section id="audio">
+          <h2>Audio</h2>
+          <p>
+            A Web Audio manager with named tracks and effect chains. It resumes on the first user gesture, ducks when the
+            page loses focus, and disposes every track it owns.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>audioManager()</code>, <code>AudioManager</code></td><td>Process-wide singleton. <code>dispose()</code> closes its context; the accessor can then create a fresh manager.</td></tr>
+              <tr><td><code>AudioTrack</code>, <code>EffectChain</code></td><td>A playable source and its effect graph. Duplicate IDs are rejected.</td></tr>
+              <tr><td><code>crossfadeMix(progress, bounds?)</code></td><td>Maps a cross-fade progress value to the mix between two tracks.</td></tr>
+              <tr><td><code>RoundRobin</code>, <code>preferredAudioFormat()</code></td><td>Cycles through variants; picks <code>'ogg'</code> or <code>'mp3'</code> for the browser.</td></tr>
+              <tr><td><code>AudioLoadError</code></td><td>A track failed to fetch or decode.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="text">
+          <h2>Text</h2>
+          <p>MSDF text from BMFont-style JSON metadata, laid out into quad buffers.</p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>configureFonts({ fontPath })</code></td><td>Sets the base path for font files.</td></tr>
+              <tr><td><code>loadFont(name)</code></td><td>Loads a font by name; resolves to a <code>Font</code>.</td></tr>
+              <tr><td><code>layoutText(font, options)</code></td><td>Returns <code>TextBuffers</code> for the quad geometry.</td></tr>
+              <tr><td><code>karaokeBuffer(animation, words)</code></td><td>Per-word animation data for karaoke-style reveals.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="quality">
+          <h2>Quality and motion</h2>
+          <p>
+            Classify the GPU once, then let <code>QualityManager</code> move between the levels you define as frame times
+            change. Each level has a name and a pixel ratio, and can carry any other fields your scene needs. The
+            reduced-motion policy is global and follows the OS unless you set it.
+          </p>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>detectGPU(gl?)</code></td><td>Returns <code>{ renderer, vendor, tier, reason, mobile, webgl2 }</code>. <code>tier</code> is 0 to 3.</td></tr>
+              <tr><td><code>classifyGPU(renderer, hints)</code></td><td>Pure tier classification from a renderer string.</td></tr>
+              <tr><td><code>QualityManager(options)</code></td><td><code>bindPipeline(pipeline)</code>, <code>onChange(listener)</code>, <code>set(index)</code>, <code>start()</code>, <code>stop()</code>, <code>level</code>.</td></tr>
+              <tr><td><code>AdaptiveQuality</code>, <code>levelForTier(tier, count)</code></td><td>The frame-time controller and the tier-to-level mapping.</td></tr>
+              <tr><td><code>prefersReducedMotion()</code></td><td>Current policy as a boolean.</td></tr>
+              <tr><td><code>setMotionPreference('system' | 'reduce' | 'full')</code></td><td>Explicit user control. <code>'system'</code> follows the OS.</td></tr>
+              <tr><td><code>onMotionChange(listener)</code></td><td>Calls the listener now and on change. Returns the unsubscribe function.</td></tr>
+            </tbody>
+          </table>
+          <p>
+            Application-authored animation and shaders must check <code>prefersReducedMotion()</code> themselves. The
+            engine does not disable keyboard navigation or replace semantic HTML.
+          </p>
+        </section>
+
+        <section id="math">
+          <h2>Math and random</h2>
+          <table>
+            <thead><tr><th>Export</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>clamp(value, min?, max?)</code>, <code>range(value, oldMin, oldMax, newMin, newMax, clamp?)</code></td><td>Clamping and remapping.</td></tr>
+              <tr><td><code>mix(a, b, alpha)</code>, <code>smoothstep(edge0, edge1, x)</code>, <code>radians(deg)</code></td><td>Linear blend, smooth Hermite step and degree conversion.</td></tr>
+              <tr><td><code>lerp(target, value, alpha)</code>, <code>lerpVec(value, target, alpha)</code></td><td>Frame-rate normalised to 60 Hz frames, so the result is the same at any refresh rate.</td></tr>
+              <tr><td><code>createRandom(seed)</code></td><td>Seeded Mulberry32 generator returning <code>RandomFn</code>.</td></tr>
+              <tr><td><code>randomRange(random, min, max)</code></td><td>Uniform sample from a seeded generator.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="errors">
+          <h2>Errors</h2>
+          <p>Every failure the engine raises is a typed error, so callers can branch on <code>instanceof</code>.</p>
+          <table>
+            <thead><tr><th>Error</th><th>Raised when</th></tr></thead>
+            <tbody>
+              <tr><td><code>AssetLoadError</code></td><td>An asset fails to load. The message names the URL.</td></tr>
+              <tr><td><code>ShaderNotFoundError</code></td><td>A shader name is not registered.</td></tr>
+              <tr><td><code>ConfigValueError</code></td><td>A config read has the wrong type.</td></tr>
+              <tr><td><code>GeometryFormatError</code></td><td>A geometry file has an invalid format.</td></tr>
+              <tr><td><code>UnsupportedFeatureError</code></td><td>The browser lacks a required feature, such as WebGL 2.</td></tr>
+              <tr><td><code>MissingDependencyError</code></td><td>An optional peer, such as Rapier, is not installed.</td></tr>
+              <tr><td><code>RouteNotFoundError</code></td><td>No route matches and no <code>notFound</code> route is set.</td></tr>
+              <tr><td><code>DisposedError</code></td><td>An object is used after <code>dispose()</code>.</td></tr>
+              <tr><td><code>AudioLoadError</code></td><td>An audio track fails to fetch or decode.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <footer>
+          <p>
+            Back to <a href="../">the examples</a>. The generated TypeDoc reference, with every type and parameter, is built by
+            <code>npm run build:docs</code>.
+          </p>
+        </footer>
+      </main>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

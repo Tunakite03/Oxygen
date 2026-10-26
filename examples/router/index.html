@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page transitions · Oxygen</title>
+    <link rel="stylesheet" href="../shared/style.css" />
+    <style>
+      nav { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 6px; background: rgba(11, 12, 15, 0.7); }
+      nav a { color: var(--dim); text-decoration: none; padding: 4px 10px; border-radius: 4px; font-size: 13px; }
+      nav a:hover, nav a:focus-visible { color: var(--text); }
+      nav a[aria-current='page'] { color: var(--text); background: #1b1e24; }
+      main { position: fixed; left: 16px; bottom: 16px; max-width: min(460px, calc(100vw - 32px)); outline: none; transition: opacity 0.35s ease, transform 0.35s ease; }
+      main.is-leaving { opacity: 0; transform: translateY(8px); }
+      main h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; }
+      main p { margin: 0; color: var(--dim); }
+      @media (prefers-reduced-motion: reduce) { main { transition: none; } }
+    </style>
+  </head>
+  <body>
+    <div class="stage" aria-hidden="true"></div>
+    <a class="back" href="../" data-router-ignore>← Examples</a>
+    <nav aria-label="Pages">
+      <a href="#/">Home</a>
+      <a href="#/work/aurora">Aurora</a>
+      <a href="#/work/ember">Ember</a>
+      <a href="#/about">About</a>
+    </nav>
+    <main id="content" aria-live="polite"></main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

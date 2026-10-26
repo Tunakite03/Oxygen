@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { frame } from '../core/loop';
 import { getDPR, stage } from '../core/stage';
+import type { PostStack } from '../post/postStack';
 import { globalUniforms } from './shaderLibrary';
 
 /**
@@ -8,6 +9,9 @@ import { globalUniforms } from './shaderLibrary';
  * buffer, one full-screen composite material draws it to the canvas, then the pixel-space UI overlay (ortho camera,
  * y down, insertion order) draws on top. Sorting: renderOrder, then world z (transparent) or material (opaque), then
  * creation id, which keeps authored layer order stable.
+ *
+ * With a `PostStack` attached (`setPost`), the stack replaces the composite draw: it reads the scene buffer and its
+ * last pass writes the canvas. Add the composite material as a `ShaderPass` to keep it.
  */
 export interface PipelineOptions {
   clearColor?: THREE.ColorRepresentation;
@@ -18,6 +22,8 @@ export interface PipelineOptions {
    * content exported for engines without that flip expects. Default true.
    */
   flipMirroredWinding?: boolean;
+  /** Half-float scene buffer so lighting above 1.0 survives until tone mapping (bloom, colour grading). Default false. */
+  hdr?: boolean;
 }
 
 export interface Pipeline {
@@ -30,8 +36,14 @@ export interface Pipeline {
   sceneRT: THREE.WebGLRenderTarget;
   /** Full-screen material that draws `tDiffuse` (the scene buffer) to the canvas; a plain copy until one is set. */
   composite: THREE.RawShaderMaterial | null;
-  dpr: number;
+  /** Post-processing stack drawn instead of the composite, or null. */
+  post: PostStack | null;
+  /** Current pixel ratio of the canvas and the scene buffer. */
+  readonly dpr: number;
   setComposite(material: THREE.RawShaderMaterial): void;
+  setPost(stack: PostStack | null): void;
+  /** Changes the canvas, scene buffer and post stack resolution (adaptive quality). */
+  setPixelRatio(dpr: number): void;
   render(camera: THREE.Camera): void;
   /** Extra off-screen renders run before the main pass each frame (FX scenes, water sims). */
   addPreRender(fn: () => void): () => void;
@@ -84,7 +96,7 @@ function worldZ(o: THREE.Object3D): number {
 }
 
 export function createPipeline(canvasParent: HTMLElement, options: PipelineOptions = {}): Pipeline {
-  const dpr = getDPR();
+  let dpr = getDPR();
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance', alpha: false, stencil: false });
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.setPixelRatio(dpr);
@@ -108,7 +120,11 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
   const beforePassesScene = new THREE.Scene();
   const uiCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);
   uiCamera.position.z = 1;
-  const sceneRT = new THREE.WebGLRenderTarget(stage.width * dpr, stage.height * dpr, { samples: options.samples ?? 4, type: THREE.UnsignedByteType, generateMipmaps: false });
+  const sceneRT = new THREE.WebGLRenderTarget(stage.width * dpr, stage.height * dpr, {
+    samples: options.samples ?? 4,
+    type: options.hdr ? THREE.HalfFloatType : THREE.UnsignedByteType,
+    generateMipmaps: false,
+  });
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), createCopyMaterial());
   quad.frustumCulled = false;
   const quadCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -116,8 +132,10 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
   const camQuat = new THREE.Quaternion();
 
   const resize = (): void => {
+    renderer.setPixelRatio(dpr);
     renderer.setSize(stage.width, stage.height);
     sceneRT.setSize(stage.width * dpr, stage.height * dpr);
+    pipeline.post?.setSize(stage.width * dpr, stage.height * dpr);
     uiCamera.left = -stage.width / 2;
     uiCamera.right = stage.width / 2;
     uiCamera.top = stage.height / 2;
@@ -125,9 +143,6 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
     uiCamera.position.set(stage.width / 2, -stage.height / 2, 1);
     uiCamera.updateProjectionMatrix();
   };
-  resize();
-  window.addEventListener('resize', resize);
-
   const pipeline: Pipeline = {
     renderer,
     scene,
@@ -136,12 +151,25 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
     beforePassesScene,
     sceneRT,
     composite: null,
-    dpr,
+    post: null,
+    get dpr() {
+      return dpr;
+    },
     setComposite(material) {
       material.depthTest = false;
       material.depthWrite = false;
       quad.material = material;
       pipeline.composite = material;
+    },
+    setPost(stack) {
+      pipeline.post = stack;
+      stack?.setSize(stage.width * dpr, stage.height * dpr);
+    },
+    setPixelRatio(value) {
+      if (!(value > 0)) throw new RangeError(`Pixel ratio must be positive, got ${value}`);
+      if (value === dpr) return;
+      dpr = value;
+      resize();
     },
     addPreRender(fn) {
       preRenders.add(fn);
@@ -171,6 +199,8 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
         c.layers.mask = mask;
         restore();
       }
+      // One pass of the post stack compiles its programs and allocates its targets.
+      pipeline.post?.render(sceneRT.texture, target);
       renderer.setRenderTarget(previous);
       target.dispose();
     },
@@ -192,10 +222,8 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
       }
       renderer.setRenderTarget(null);
       globalUniforms.resolution.value.set(canvas.width, canvas.height);
-      const tDiffuse = quad.material.uniforms.tDiffuse;
-      if (!tDiffuse) throw new Error(`Composite material "${quad.material.name}" has no tDiffuse uniform`);
-      tDiffuse.value = sceneRT.texture;
-      renderer.render(quad, quadCamera);
+      if (pipeline.post) pipeline.post.render(sceneRT.texture, null);
+      else drawComposite();
       if (uiScene.children.length) {
         const autoClear = renderer.autoClear;
         renderer.autoClear = false;
@@ -205,6 +233,14 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
       }
     },
   };
+  const drawComposite = (): void => {
+    const tDiffuse = quad.material.uniforms.tDiffuse;
+      if (!tDiffuse) throw new Error(`Composite material "${quad.material.name}" has no tDiffuse uniform`);
+    tDiffuse.value = sceneRT.texture;
+    renderer.render(quad, quadCamera);
+  };
+  resize();
+  window.addEventListener('resize', resize);
   return pipeline;
 }
 

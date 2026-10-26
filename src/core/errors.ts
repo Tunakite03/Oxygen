@@ -35,3 +35,34 @@ export class GeometryFormatError extends Error {
     this.name = 'GeometryFormatError';
   }
 }
+
+/** The browser or GPU lacks a capability a module needs (float render targets, WebGL 2). */
+export class UnsupportedFeatureError extends Error {
+  constructor(
+    readonly feature: string,
+    readonly reason: string,
+  ) {
+    super(`${feature} is not supported: ${reason}`);
+    this.name = 'UnsupportedFeatureError';
+  }
+}
+
+/** An optional peer dependency a module needs is not installed or failed to initialise. */
+export class MissingDependencyError extends Error {
+  constructor(
+    readonly packageName: string,
+    readonly feature: string,
+    readonly reason: string,
+  ) {
+    super(`${feature} needs the "${packageName}" package: ${reason}`);
+    this.name = 'MissingDependencyError';
+  }
+}
+
+/** No route matches a path and the router has no `notFound` route. */
+export class RouteNotFoundError extends Error {
+  constructor(readonly path: string) {
+    super(`No route matches "${path}"`);
+    this.name = 'RouteNotFoundError';
+  }
+}

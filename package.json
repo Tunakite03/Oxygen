@@ -1,7 +1,7 @@
 {
-  "name": "@tunn/engine",
-  "version": "0.1.0",
-  "description": "Scroll-story WebGL engine on three.js: frame loop, tweens, asset loading (KTX2, Draco), shader library, render pipeline with GPU warm-up, virtual scroll, story scenes, Web Audio.",
+  "name": "@tunn/oxygen",
+  "version": "0.2.0",
+  "description": "Oxygen: a WebGL engine for creative sites on three.js. Frame loop, tweens, asset loading, shader library, render pipeline with GPU warm-up, scroll stories, post-processing, GPU particles, physics, routing with page transitions, adaptive quality, pointer input, Web Audio and a debug GUI.",
   "type": "module",
   "sideEffects": true,
   "main": "./dist/index.js",
@@ -16,24 +16,35 @@
   "files": [
     "dist",
     "src",
+    "docs",
     "README.md"
   ],
   "scripts": {
+    "dev": "vite --config vite.examples.config.ts --host",
     "build": "tsc -p tsconfig.build.json && vite build",
-    "typecheck": "tsc --noEmit",
+    "build:examples": "vite build --config vite.examples.config.ts",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.examples.json",
     "test": "vitest run"
   },
   "peerDependencies": {
+    "@dimforge/rapier3d-compat": ">=0.19.0",
     "three": ">=0.180.0",
     "zod": "^4.0.0"
   },
+  "peerDependenciesMeta": {
+    "@dimforge/rapier3d-compat": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@dimforge/rapier3d-compat": "0.21.0",
+    "@types/node": "26.6.5",
     "@types/three": "0.186.0",
     "happy-dom": "21.0.4",
     "three": "0.186.1",
     "typescript": "5.9.3",
     "vite": "8.3.3",
     "vitest": "5.0.5",
-    "zod": "4.6.5"
+    "zod": "4.6.7"
   }
 }

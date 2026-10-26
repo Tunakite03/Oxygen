@@ -13,6 +13,8 @@ declare global {
 }
 
 test('runs GPU particles, reports motion pauses, and isolates pointer controls from the GUI', async ({ page }) => {
+  // Software GL (SwiftShader) on CI makes every frame and readPixels stall slow, so each round trip waits longer.
+  test.setTimeout(90_000);
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });

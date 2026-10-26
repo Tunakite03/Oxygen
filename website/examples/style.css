@@ -5,8 +5,12 @@
 .example-filters button:hover { color: var(--site-text); }
 #example-count { margin: 0; color: var(--site-muted); font: 10px var(--site-mono); white-space: nowrap; }
 .example-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 24px; margin: 32px 0 60px; }
+.preview-card { display: block; min-width: 0; color: var(--site-text); text-decoration: none; }
+.preview-image { position: relative; overflow: hidden; border: 1px solid var(--site-line); border-radius: 6px; background: #10141a; }
+.preview-image img { display: block; width: 100%; height: auto; aspect-ratio: 8/5; object-fit: cover; transition: transform 240ms; }
+.preview-card:hover img { transform: scale(1.025); }
+.preview-open { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 29px; height: 29px; border: 1px solid #46534b; border-radius: 4px; background: #0c0e12; color: #cad9d0; }
 .example-grid article { min-width: 0; }
-.example-grid .preview-image img { aspect-ratio: 8/5; }
 .example-tag { position: absolute; bottom: 12px; left: 12px; padding: 3px 7px; border: 1px solid #3c4a43; border-radius: 3px; background: #0c0e12; color: #bdcec3; font: 8px/1.6 var(--site-mono); letter-spacing: .5px; }
 .example-grid h2 { margin: 16px 0 9px; font-size: 18px; font-weight: 500; letter-spacing: -.5px; }
 .example-grid .preview-card > p { min-height: 64px; margin: 0 0 18px; color: var(--site-muted); font-size: 12px; line-height: 1.8; }

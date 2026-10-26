@@ -1,15 +1,40 @@
 import * as THREE from 'three';
-import { Router, TransitionPass, delay, prefersReducedMotion } from '@tunn/oxygen';
-import type { RouteMatch, RouteView, TransitionEffect } from '@tunn/oxygen';
+import { Router, TransitionPass, delay, onMotionChange, prefersReducedMotion, setMotionPreference } from '@tunn/oxygen';
+import type { MotionPreference, RouteMatch, RouteView, TransitionEffect } from '@tunn/oxygen';
 import { createExample, everyFrame } from '../shared/setup';
 
 const { pipeline, camera, post, gui } = createExample('Page transitions');
 camera.position.set(0, 0, 5);
 
+const status = document.querySelector<HTMLElement>('[role="status"]');
+if (!status) throw new Error('Router example needs a transition status element');
+
+let motionPreference: MotionPreference = 'system';
+const motion = {
+  get preference(): MotionPreference { return motionPreference; },
+  set preference(value: MotionPreference) {
+    setMotionPreference(value);
+    motionPreference = value;
+    updateStatus();
+  },
+};
+
+function updateStatus(): void {
+  const message = prefersReducedMotion()
+    ? 'Transitions disabled: reduced motion is active.'
+    : 'Transitions ready';
+  if (status && status.textContent !== message) {
+    status.textContent = message;
+  }
+}
+onMotionChange(() => updateStatus());
+updateStatus();
+
 // The transition runs first in the stack, on HDR colour, so its glowing edge blooms.
 const transition = post.add(new TransitionPass({ effect: 'noise', softness: 0.04, edgeColor: 0xffa152, edgeIntensity: 3, noiseScale: 3.5 }), 0);
 const settings = { effect: 'noise' as TransitionEffect, duration: 1100 };
 const folder = gui.addFolder('Transition');
+folder.addSelect(motion, 'preference', ['system', 'reduce', 'full'], { label: 'motion' });
 folder.addSelect(settings, 'effect', ['noise', 'wipe', 'fade']).onChange((v) => (transition.effect = v as TransitionEffect));
 folder.addNumber(settings, 'duration', { min: 200, max: 3000, step: 10 });
 folder.addColor(transition.edgeColor, 'edge');
@@ -41,7 +66,6 @@ const pages: Record<string, Page> = {
 };
 
 const main = document.getElementById('content') as HTMLElement;
-const reduced = prefersReducedMotion();
 
 function pageOf(match: RouteMatch): Page {
   if (match.name === 'work') {
@@ -75,8 +99,9 @@ let first = true;
 const view: RouteView = {
   async leave() {
     main.classList.add('is-leaving');
+    if (prefersReducedMotion()) return;
     // Hold the current frame; the new page renders underneath and is revealed by `play`.
-    await Promise.all([transition.capture(), delay(reduced ? 0 : 250)]);
+    await Promise.all([transition.capture(), delay(250)]);
   },
   async enter({ to, signal }) {
     show(pageOf(to));
@@ -86,7 +111,8 @@ const view: RouteView = {
       return;
     }
     if (signal.aborted) return;
-    await transition.play(reduced ? 0 : settings.duration);
+    if (prefersReducedMotion()) return;
+    await transition.play(settings.duration);
   },
   async update(context) {
     await view.leave?.(context);
@@ -107,6 +133,7 @@ const router = new Router({
 await router.start();
 
 everyFrame((delta) => {
+  updateStatus();
   subject.rotation.x += delta * 0.0003;
   subject.rotation.y += delta * 0.0005;
 });

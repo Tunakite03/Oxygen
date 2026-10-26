@@ -537,9 +537,13 @@
 /* --- Developer Workflow Section --- */
 .workflow-grid {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   align-items: center;
   gap: 64px;
+}
+
+.workflow-grid > * {
+  min-width: 0;
 }
 
 .workflow-copy h2 {
@@ -602,6 +606,8 @@
 
 .code-workspace-card {
   position: relative;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .code-tabbar {
@@ -613,9 +619,17 @@
   border-bottom: 0;
   border-radius: 10px 10px 0 0;
   background: #0d1117;
+  overflow-x: auto;
+  max-width: 100%;
+  scrollbar-width: none;
+}
+
+.code-tabbar::-webkit-scrollbar {
+  display: none;
 }
 
 .code-tab {
+  flex-shrink: 0;
   padding: 6px 14px;
   border: 1px solid transparent;
   border-radius: 6px;
@@ -755,6 +769,7 @@
   gap: 48px;
   padding: 96px 0;
   border-top: 1px solid var(--site-line);
+  overflow: hidden;
 }
 
 .cta-backdrop-glow {
@@ -796,7 +811,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-width: 320px;
+  width: 100%;
+  max-width: 380px;
+  min-width: 0;
 }
 
 .cta-terminal {
@@ -841,7 +858,7 @@
     grid-template-columns: repeat(2, 1fr);
   }
   .workflow-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 40px;
   }
   .home-cta {

@@ -13,6 +13,8 @@ declare global {
 }
 
 test('runs GPU particles, reports motion pauses, and isolates pointer controls from the GUI', async ({ page }) => {
+  // One scenario covers several reloads and GPU frame waits; software WebGL on CI runners exceeds the 30 s global budget.
+  test.setTimeout(90000);
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });

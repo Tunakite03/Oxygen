@@ -25,6 +25,7 @@
   "scripts": {
     "dev": "vite --config vite.examples.config.ts --host",
     "build": "node scripts/build.mjs",
+    "prepare": "node scripts/build.mjs",
     "build:examples": "vite build --config vite.examples.config.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.examples.json",
     "test": "vitest run",

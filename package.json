@@ -1,0 +1,39 @@
+{
+  "name": "@tunn/engine",
+  "version": "0.1.0",
+  "description": "Scroll-story WebGL engine on three.js: frame loop, tweens, asset loading (KTX2, Draco), shader library, render pipeline with GPU warm-up, virtual scroll, story scenes, Web Audio.",
+  "type": "module",
+  "sideEffects": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "three": ">=0.180.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.186.0",
+    "happy-dom": "21.0.4",
+    "three": "0.186.1",
+    "typescript": "5.9.3",
+    "vite": "8.3.3",
+    "vitest": "5.0.5",
+    "zod": "4.6.5"
+  }
+}

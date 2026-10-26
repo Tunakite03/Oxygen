@@ -64,6 +64,13 @@ export interface Pipeline {
 
 const _m = new THREE.Vector3();
 
+/**
+ * Overlay camera distance. The orthographic camera sees z in [depth - 1000, depth - 0.01], so 500 keeps content at
+ * z in [-500, 499] visible. A camera at z = 1 would clip any overlay group rotated away from z = 0 (for example a
+ * pointer tilt around an origin far from the content).
+ */
+const UI_CAMERA_DEPTH = 500;
+
 /** Meshes drawn outside the three scenes (full-screen passes) that only run on demand; precompiled by `warmUp`. */
 const offscreenPasses = new Set<THREE.Object3D>();
 
@@ -137,7 +144,7 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
   const uiScene = new THREE.Scene();
   const beforePassesScene = new THREE.Scene();
   const uiCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);
-  uiCamera.position.z = 1;
+  uiCamera.position.z = UI_CAMERA_DEPTH;
   const sceneRT = new THREE.WebGLRenderTarget(stage.width * dpr, stage.height * dpr, {
     samples: options.samples ?? 4,
     type: options.hdr ? THREE.HalfFloatType : THREE.UnsignedByteType,
@@ -162,7 +169,7 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
     uiCamera.right = size.width / 2;
     uiCamera.top = size.height / 2;
     uiCamera.bottom = -size.height / 2;
-    uiCamera.position.set(size.width / 2, -size.height / 2, 1);
+    uiCamera.position.set(size.width / 2, -size.height / 2, UI_CAMERA_DEPTH);
     uiCamera.updateProjectionMatrix();
   };
   const pipeline: Pipeline = {

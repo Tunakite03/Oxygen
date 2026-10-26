@@ -2,67 +2,512 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Oxygen — A new dimension for the web</title>
-    <meta name="description" content="Oxygen is a TypeScript WebGL engine on three.js. Build expressive websites with rendering, motion, particles, physics and scroll stories." />
+    <title>Oxygen — Creative WebGL Engine for Next-Gen 3D Web</title>
+    <meta name="description" content="Oxygen is a high-performance TypeScript WebGL engine built on three.js. HDR rendering, GPGPU curl particles, closed-form springs, post-processing, and interactive scroll stories." />
     <!-- site:head -->
     <link rel="stylesheet" href="./home.css" />
   </head>
-  <body data-page="home" data-title-en="Oxygen — A new dimension for the web" data-title-vi="Oxygen — Thêm một chiều cho web">
+  <body data-page="home" data-title-en="Oxygen — Creative WebGL Engine for Next-Gen 3D Web" data-title-vi="Oxygen — WebGL Engine Sáng Tạo Cho Kỷ Nguyên 3D Web">
     <!-- site:header -->
     <main id="main-content" class="page-shell" tabindex="-1">
+
+      <!-- ================= HERO SECTION ================= -->
       <section class="home-hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <a class="release-link" href="./docs/#installation"><span class="release-dot" aria-hidden="true"></span>v0.3.0-beta.1<span class="release-divider"></span><span lang="en">A little engine. A lot of possibility.</span><span lang="vi">Engine nhỏ. Khả năng lớn.</span><span aria-hidden="true">↗</span></a>
-          <h1 id="hero-title"><span lang="en">Give your ideas<br />a <em>new dimension.</em></span><span lang="vi">Thêm một chiều.<br /><em>Cho mọi ý tưởng.</em></span></h1>
-          <p class="hero-description"><span lang="en">A WebGL engine for websites that feel different.<br />Rendering, motion and interaction. All in Oxygen.<br />Built on three.js. Made to be yours.</span><span lang="vi">WebGL engine cho những website khác biệt.<br />Kết xuất, chuyển động và tương tác trong Oxygen.<br />Xây trên three.js. Sáng tạo theo cách của bạn.</span></p>
-          <div class="hero-actions"><a class="button" href="./docs/"><span lang="en">Start building</span><span lang="vi">Bắt đầu xây dựng</span><span aria-hidden="true">↗</span></a><a class="button button-outline" href="./examples/"><span lang="en">Explore examples</span><span lang="vi">Khám phá ví dụ</span><span aria-hidden="true">→</span></a></div>
-          <p class="hero-footnote"><span lang="en">TypeScript-native. Modular by design. Yours to shape.</span><span lang="vi">TypeScript nguyên bản. Thiết kế module. Tự do sáng tạo.</span></p>
+          <div class="release-pill">
+            <span class="pulse-indicator" aria-hidden="true"></span>
+            <span class="pill-tag">v0.3.0-beta.1</span>
+            <span class="pill-divider"></span>
+            <span lang="en">Creative Three.js Engine</span>
+            <span lang="vi">Engine Three.js Sáng Tạo</span>
+          </div>
+
+          <h1 id="hero-title">
+            <span lang="en">Creative WebGL<br />for <em>Next-Gen Web.</em></span>
+            <span lang="vi">WebGL Đỉnh Cao<br />cho <em>Kỷ Nguyên 3D.</em></span>
+          </h1>
+
+          <p class="hero-description">
+            <span lang="en">A high-performance WebGL 2 engine built on three.js. Expressive rendering, GPGPU curl particles, closed-form springs, HDR post-processing, and scroll stories—engineered for fluid 60+ FPS creative sites.</span>
+            <span lang="vi">WebGL 2 engine hiệu năng cao xây dựng trên ba nền tảng three.js. Kết xuất chân thực, hạt GPGPU curl-noise, vật lý lò xo closed-form, hậu xử lý HDR và scroll story—tối ưu chuẩn 60+ FPS cho trải nghiệm web khác biệt.</span>
+          </p>
+
+          <div class="hero-actions">
+            <a class="button" href="./docs/" id="hero-btn-start">
+              <span lang="en">Start building</span>
+              <span lang="vi">Bắt đầu ngay</span>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+            </a>
+            <a class="button button-outline" href="./examples/" id="hero-btn-examples">
+              <span lang="en">Explore examples</span>
+              <span lang="vi">Khám phá ví dụ</span>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+            <div class="quick-install">
+              <code id="install-code">npm i @tunn/oxygen</code>
+              <button type="button" class="btn-copy-install" data-copy-target="install-code" aria-label="Copy install command">
+                <span data-copy-label>Copy</span>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13" aria-hidden="true"><rect x="5" y="5" width="8" height="8" rx="1.5"/><path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="hero-specs-list">
+            <span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true"><path d="M2 8l4 4 8-8"/></svg><span lang="en">TypeScript-native & tree-shakeable</span><span lang="vi">TypeScript nguyên bản & tree-shakeable</span></span>
+            <span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true"><path d="M2 8l4 4 8-8"/></svg><span lang="en">Zero-allocation frame loop</span><span lang="vi">Vòng lặp không cấp phát rác</span></span>
+            <span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true"><path d="M2 8l4 4 8-8"/></svg><span lang="en">Hardware tier auto-tuning</span><span lang="vi">Tự động thích ứng cấu hình GPU</span></span>
+          </div>
         </div>
+
         <div class="hero-visual">
-          <div class="visual-topline"><span><span class="live-indicator" aria-hidden="true"></span><span lang="en">RENDERED WITH OXYGEN</span><span lang="vi">RENDER BẰNG OXYGEN</span></span><span>SCENE_001</span></div>
-          <div class="hero-scene" id="hero-scene" aria-label="Oxygen WebGL preview"><div id="hero-fallback" class="hero-fallback"><svg viewBox="0 0 400 400" fill="none" aria-hidden="true"><g stroke="#94e3c0" stroke-width="0.8"><ellipse cx="200" cy="200" rx="143" ry="143"/><ellipse cx="200" cy="200" rx="100" ry="143"/><ellipse cx="200" cy="200" rx="50" ry="143"/><ellipse cx="200" cy="200" rx="143" ry="100"/><ellipse cx="200" cy="200" rx="143" ry="50"/></g></svg><p><span lang="en">A sculptural wireframe, rendered in real time when WebGL 2 is available.</span><span lang="vi">Khối hình wireframe, render trực tiếp khi có WebGL 2.</span></p></div></div>
-          <div class="visual-bottomline"><span><span lang="en">MOVE YOUR POINTER TO EXPLORE</span><span lang="vi">DI CHUYỂN CON TRỎ ĐỂ KHÁM PHÁ</span></span><button id="hero-motion" type="button" aria-pressed="false"><span lang="en">Pause motion</span><span lang="vi">Dừng chuyển động</span><span aria-hidden="true">Ⅱ</span></button></div>
+          <div class="visual-reticle reticle-tl"></div>
+          <div class="visual-reticle reticle-tr"></div>
+          <div class="visual-reticle reticle-bl"></div>
+          <div class="visual-reticle reticle-br"></div>
+
+          <!-- Top Stage HUD -->
+          <div class="visual-topbar">
+            <div class="mode-tabs" role="tablist" aria-label="Hero 3D Showcase Mode">
+              <button type="button" class="mode-tab active" data-hero-mode="core" role="tab" aria-selected="true" id="tab-mode-core">
+                <span class="tab-dot" aria-hidden="true"></span>
+                <span lang="en">01 / Quantum Core</span>
+                <span lang="vi">01 / Lõi Lượng Tử</span>
+              </button>
+              <button type="button" class="mode-tab" data-hero-mode="particles" role="tab" aria-selected="false" id="tab-mode-particles">
+                <span class="tab-dot" aria-hidden="true"></span>
+                <span lang="en">02 / GPU Particles</span>
+                <span lang="vi">02 / Hạt GPGPU</span>
+              </button>
+              <button type="button" class="mode-tab" data-hero-mode="springs" role="tab" aria-selected="false" id="tab-mode-springs">
+                <span class="tab-dot" aria-hidden="true"></span>
+                <span lang="en">03 / Kinetic Springs</span>
+                <span lang="vi">03 / Lò Xo Động</span>
+              </button>
+            </div>
+            <div class="telemetry-pill">
+              <span class="telemetry-item"><span class="telemetry-live-dot"></span><span id="hero-fps">60 FPS</span></span>
+              <span class="telemetry-divider"></span>
+              <span class="telemetry-item" id="hero-tier">TIER 3</span>
+            </div>
+          </div>
+
+          <!-- 3D Canvas Host -->
+          <div class="hero-scene" id="hero-scene" aria-label="Oxygen WebGL preview stage">
+            <div id="hero-fallback" class="hero-fallback" hidden>
+              <svg viewBox="0 0 400 400" fill="none" aria-hidden="true">
+                <g stroke="#00f5a0" stroke-width="0.8">
+                  <ellipse cx="200" cy="200" rx="143" ry="143"/>
+                  <ellipse cx="200" cy="200" rx="100" ry="143"/>
+                  <ellipse cx="200" cy="200" rx="50" ry="143"/>
+                  <ellipse cx="200" cy="200" rx="143" ry="100"/>
+                  <ellipse cx="200" cy="200" rx="143" ry="50"/>
+                </g>
+              </svg>
+              <p>
+                <span lang="en">Hardware WebGL 2 acceleration unavailable. Upgrade your browser to experience live 3D rendering.</span>
+                <span lang="vi">Thiết bị không hỗ trợ WebGL 2. Nâng cấp trình duyệt để kích hoạt đồ họa 3D thời gian thực.</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Bottom Stage HUD -->
+          <div class="visual-bottombar">
+            <div class="visual-hint" id="hero-hint">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13" aria-hidden="true"><path d="M8 2v12M2 8h12"/></svg>
+              <span lang="en">DRAG TO ORBIT · CLICK FOR IMPULSE</span>
+              <span lang="vi">KÉO ĐỂ XOAY · NHẤP ĐỂ TẠO XUNG LỰC</span>
+            </div>
+            <div class="visual-controls">
+              <button type="button" id="hero-bloom-toggle" class="stage-control-btn active" aria-pressed="true" title="Toggle HDR Bloom Glow">
+                <span class="ctrl-indicator"></span>
+                <span>BLOOM</span>
+              </button>
+              <button type="button" id="hero-audio-toggle" class="stage-control-btn" aria-pressed="false" title="Toggle Web Audio Synths">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="12" height="12" aria-hidden="true"><path d="M2 6h3l4-4v12L5 10H2V6Zm9 2a3 3 0 0 1 0 0M13 5a6 6 0 0 1 0 6"/></svg>
+                <span id="audio-btn-label">AUDIO: OFF</span>
+              </button>
+              <button type="button" id="hero-motion" class="stage-control-btn" aria-pressed="false" title="Pause / Resume Motion">
+                <span id="motion-btn-icon" aria-hidden="true">Ⅱ</span>
+                <span id="motion-btn-text"><span lang="en">Pause</span><span lang="vi">Dừng</span></span>
+              </button>
+            </div>
+          </div>
         </div>
       </section>
-      <div class="engine-strip"><span lang="en">A small toolkit.<br /><strong>A complete creative workflow.</strong></span><span lang="vi">Bộ công cụ gọn nhẹ.<br /><strong>Quy trình sáng tạo trọn vẹn.</strong></span><div><span>three.js</span><span>WebGL 2</span><span>TypeScript</span><span>GLSL</span><span>ESM</span></div></div>
+
+      <!-- ================= LIVE METRICS STRIP ================= -->
+      <section class="engine-metrics-strip" aria-label="Engine Technical Highlights">
+        <div class="metric-card">
+          <div class="metric-num">60+ FPS</div>
+          <div class="metric-title"><span lang="en">Zero-Alloc Frame Loop</span><span lang="vi">Vòng Lặp Zero-Allocation</span></div>
+          <div class="metric-desc"><span lang="en">Deterministic phase order (input → update → physics → render) with sub-millisecond overhead.</span><span lang="vi">Thứ tự pha xử lý chính xác (input → update → vật lý → render) không sinh rác bộ nhớ.</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">100k+</div>
+          <div class="metric-title"><span lang="en">GPGPU Particles</span><span lang="vi">Hạt GPGPU Thời Gian Thực</span></div>
+          <div class="metric-desc"><span lang="en">Float-texture simulation with multi-octave 3D curl noise and spatial point attractors.</span><span lang="vi">Mô phỏng texture float với trường nhiễu curl noise 3D và điểm hút/đẩy con trỏ.</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">HDR</div>
+          <div class="metric-title"><span lang="en">Cinematic Post-Stack</span><span lang="vi">Hậu Xử Lý Chuẩn HDR</span></div>
+          <div class="metric-desc"><span lang="en">Dual-filter mip chain bloom, ACES tone-mapping, chromatic dispersion and FXAA in a single pass chain.</span><span lang="vi">Glow bloom đa cấp, ánh xạ sắc độ ACES, tán sắc ống kính và khử răng cưa FXAA.</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">Physics</div>
+          <div class="metric-title"><span lang="en">Closed-Form Springs</span><span lang="vi">Lò Xo Giải Tích & Verlet</span></div>
+          <div class="metric-desc"><span lang="en">Step-invariant analytical springs that never explode on frame spikes, plus Verlet cloth & Rapier rigid bodies.</span><span lang="vi">Lò xo giải tích không bị méo khi tụt frame, kết hợp vải Verlet và vật lý va chạm Rapier.</span></div>
+        </div>
+      </section>
+
+
+
+      <!-- ================= SECTION 01: CAPABILITIES ================= -->
       <section class="site-section" id="capabilities" aria-labelledby="capabilities-title">
-        <p class="section-label"><span lang="en">01 / The engine</span><span lang="vi">01 / Engine</span></p>
-        <div class="section-heading"><h2 id="capabilities-title"><span lang="en">Less plumbing.<br />More possibility.</span><span lang="vi">Bớt phần lắp ghép.<br />Thêm không gian sáng tạo.</span></h2><p><span lang="en">Everything that usually sits between your idea and the canvas, brought together in one coherent toolkit.</span><span lang="vi">Những công cụ từ ý tưởng đến canvas, kết hợp trong một hệ thống nhất quán.</span></p></div>
-        <div class="feature-grid">
-          <a class="feature" href="./reference/#pipeline"><span class="feature-index">[01]</span><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="m20 4 16 9v18l-16 9L4 31V13L20 4Zm0 0v18m16-9-16 9-16-9m16 9v18" stroke="currentColor"/></svg><h3><span lang="en">A considered render pipeline.</span><span lang="vi">Pipeline render chỉn chu.</span></h3><p><span lang="en">GPU warm-up, HDR, post-processing and adaptive quality. Get your first frame right.</span><span lang="vi">GPU warm-up, HDR, hậu xử lý và chất lượng thích ứng. Chỉn chu từ khung hình đầu tiên.</span></p><span class="feature-bottom">createPipeline()<span aria-hidden="true">↗</span></span></a>
-          <a class="feature" href="./reference/#tweens"><span class="feature-index">[02]</span><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M4 32c15 0 9-24 24-24h8M5 8h5m20 24h5" stroke="currentColor"/><circle cx="5" cy="32" r="3" stroke="currentColor"/><circle cx="35" cy="8" r="3" stroke="currentColor"/></svg><h3><span lang="en">Motion that feels connected.</span><span lang="vi">Chuyển động liền mạch.</span></h3><p><span lang="en">One frame loop for tweens, DOM and scroll stories. With reduced motion built into the workflow.</span><span lang="vi">Một vòng lặp cho tween, DOM và scroll story. Tích hợp chính sách giảm chuyển động.</span></p><span class="feature-bottom">tween() · ScrollStory<span aria-hidden="true">↗</span></span></a>
-          <a class="feature" href="./reference/#particles"><span class="feature-index">[03]</span><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><g fill="currentColor"><circle cx="8" cy="9" r="2"/><circle cx="24" cy="6" r="1.5"/><circle cx="34" cy="17" r="2"/><circle cx="18" cy="18" r="2.5"/><circle cx="7" cy="30" r="1.5"/><circle cx="25" cy="32" r="2"/><circle cx="34" cy="35" r="1"/></g><path d="m8 9 10 9 16-1M18 18l7 14-18-2" stroke="currentColor" stroke-opacity=".4"/></svg><h3><span lang="en">Room to experiment.</span><span lang="vi">Không gian để thử nghiệm.</span></h3><p><span lang="en">GPU particles, physics, shaders and pointer input. Compose something that could only be yours.</span><span lang="vi">Hạt GPU, vật lý, shader và tương tác con trỏ. Kết hợp thành trải nghiệm của riêng bạn.</span></p><span class="feature-bottom">GPUParticles · PhysicsWorld<span aria-hidden="true">↗</span></span></a>
+        <p class="section-label"><span lang="en">01 / Modular Architecture</span><span lang="vi">01 / Kiến Trúc Module</span></p>
+        <div class="section-heading">
+          <h2 id="capabilities-title">
+            <span lang="en">High-performance building blocks.<br />Designed for creative freedom.</span>
+            <span lang="vi">Các khối nền tảng hiệu năng cao.<br />Thiết kế cho tự do sáng tạo.</span>
+          </h2>
+          <p>
+            <span lang="en">Everything you need to orchestrate award-winning WebGL web experiences, packaged into clean, tree-shakeable TypeScript modules.</span>
+            <span lang="vi">Tất cả những gì bạn cần để tạo nên các website 3D đẳng cấp quốc tế, đóng gói trong các module TypeScript độc lập và tối ưu dung lượng.</span>
+          </p>
+        </div>
+
+        <div class="capabilities-grid">
+          <!-- Card 1 -->
+          <a class="cap-card" href="./reference/#pipeline">
+            <div class="cap-header">
+              <span class="cap-badge">RENDER PIPELINE</span>
+              <span class="cap-index">[01]</span>
+            </div>
+            <div class="cap-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <h3><span lang="en">Render Pipeline & HDR Post-Stack</span><span lang="vi">Pipeline Render & Hậu Xử Lý HDR</span></h3>
+            <p><span lang="en">Pre-compiles shaders off-thread with GPU warm-up, MSAA buffers, dual-filter bloom, chromatic lens aberration, and ACES tonemapping.</span><span lang="vi">Khởi tạo GPU warm-up ngầm chống giật khung hình, bộ đệm MSAA, hiệu ứng bloom đa tầng và ánh xạ màu ACES.</span></p>
+            <div class="cap-footer">
+              <code>createPipeline() · PostStack</code>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+            </div>
+          </a>
+
+          <!-- Card 2 -->
+          <a class="cap-card" href="./reference/#particles">
+            <div class="cap-header">
+              <span class="cap-badge">GPGPU PHYSICS</span>
+              <span class="cap-index">[02]</span>
+            </div>
+            <div class="cap-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><path d="M10.5 10.5L6.5 6.5M17.5 17.5l-4-4"/></svg>
+            </div>
+            <h3><span lang="en">GPGPU Particles & Curl Turbulence</span><span lang="vi">Hạt GPGPU & Nhiễu Curl Noise</span></h3>
+            <p><span lang="en">Simulates hundreds of thousands of particles in float textures with analytical curl noise, drag, and responsive pointer attractors.</span><span lang="vi">Mô phỏng hàng trăm nghìn hạt trên texture GPU float với trường nhiễu curl noise, lực cản và điểm tương tác con trỏ.</span></p>
+            <div class="cap-footer">
+              <code>GPUParticles · GPUSimulation</code>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+            </div>
+          </a>
+
+          <!-- Card 3 -->
+          <a class="cap-card" href="./physics/">
+            <div class="cap-header">
+              <span class="cap-badge">DYNAMICS</span>
+              <span class="cap-index">[03]</span>
+            </div>
+            <div class="cap-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><path d="M14 7h3a2 2 0 0 1 2 2v1M7 14v3a2 2 0 0 0 2 2h1"/></svg>
+            </div>
+            <h3><span lang="en">Closed-Form Springs & Verlet Cloth</span><span lang="vi">Lò Xo Giải Tích & Vải Verlet</span></h3>
+            <p><span lang="en">Mathematically exact closed-form springs that never diverge on frame drops. Verlet ropes/cloth and optional Rapier 3D rigid bodies.</span><span lang="vi">Lò xo giải tích bất biến theo thời gian không bị rung giật khi lag. Dây/vải Verlet và vật lý va chạm Rapier.</span></p>
+            <div class="cap-footer">
+              <code>Spring · VerletWorld · Rapier</code>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+            </div>
+          </a>
+
+          <!-- Card 4 -->
+          <a class="cap-card" href="./reference/#story">
+            <div class="cap-header">
+              <span class="cap-badge">SCROLL MOTION</span>
+              <span class="cap-index">[04]</span>
+            </div>
+            <div class="cap-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h3><span lang="en">Scroll Stories & Transitions</span><span lang="vi">Scroll Story & Chuyển Cảnh Mượt</span></h3>
+            <p><span lang="en">Stacked 3D scene chapters tied to virtual scroll, progress scrubbers, camera transitions, and history routing without layout pop.</span><span lang="vi">Xếp tầng các chapter 3D đồng bộ hoàn hảo với cuộn trang, điều phối camera mượt mà và chuyển trang không giật.</span></p>
+            <div class="cap-footer">
+              <code>ScrollStory · VirtualScroll</code>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+            </div>
+          </a>
+
+          <!-- Card 5 -->
+          <a class="cap-card" href="./reference/#quality">
+            <div class="cap-header">
+              <span class="cap-badge">PERFORMANCE</span>
+              <span class="cap-index">[05]</span>
+            </div>
+            <div class="cap-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            </div>
+            <h3><span lang="en">Adaptive Quality & GPU Tiering</span><span lang="vi">Chất Lượng Thích Ứng & GPU Tier</span></h3>
+            <p><span lang="en">Classifies hardware tier (0–3) from unmasked GPU strings and device memory hints. Dynamically scales resolution & particle counts.</span><span lang="vi">Tự động nhận diện GPU (Tier 0–3) và bộ nhớ máy để điều chỉnh DPR, số lượng hạt và post-pass giữ vững 60 FPS.</span></p>
+            <div class="cap-footer">
+              <code>detectGPU() · QualityManager</code>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+            </div>
+          </a>
+
+          <!-- Card 6 -->
+          <a class="cap-card" href="./reference/#input">
+            <div class="cap-header">
+              <span class="cap-badge">INTERACTION</span>
+              <span class="cap-index">[06]</span>
+            </div>
+            <div class="cap-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+            </div>
+            <h3><span lang="en">Spatial Pointer & MSDF Typography</span><span lang="vi">Tương Tác Không Gian & MSDF Text</span></h3>
+            <p><span lang="en">Pointer tracking with velocity damping, multi-touch gestures, raycast mesh hit-testing, and razor-sharp distance field 3D typography.</span><span lang="vi">Theo dõi con trỏ kèm quán tính, cử chỉ chạm đa điểm, raycast va chạm mesh và font 3D MSDF siêu nét.</span></p>
+            <div class="cap-footer">
+              <code>PointerTracker · Interaction3D</code>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+            </div>
+          </a>
         </div>
       </section>
-      <section class="site-section" aria-labelledby="workflow-title">
-        <div class="workflow-grid"><div class="workflow-copy"><p class="section-label"><span lang="en">02 / From idea to canvas</span><span lang="vi">02 / Từ ý tưởng đến canvas</span></p><h2 id="workflow-title"><span lang="en">Your scene.<br />Your rules.</span><span lang="vi">Scene của bạn.<br />Theo cách của bạn.</span></h2><p><span lang="en">Keep the three.js you know. Oxygen handles the frame loop and rendering lifecycle, so you can focus on what happens on screen.</span><span lang="vi">Tiếp tục với three.js quen thuộc. Oxygen quản lý vòng lặp và vòng đời render, để bạn tập trung vào trải nghiệm trên màn hình.</span></p><ul class="workflow-points"><li><span lang="en">Plain TypeScript. No component framework required.</span><span lang="vi">TypeScript thuần. Không bắt buộc component framework.</span></li><li><span lang="en">Import what your project needs.</span><span lang="vi">Import đúng phần dự án cần.</span></li><li><span lang="en">Explicit ownership and cleanup.</span><span lang="vi">Quyền sở hữu và giải phóng tài nguyên rõ ràng.</span></li></ul><a class="text-link" href="./docs/"><span lang="en">Create your first scene</span><span lang="vi">Tạo scene đầu tiên</span><span aria-hidden="true">→</span></a></div>
-          <div class="site-code"><div class="site-code-toolbar"><span>first-scene.ts</span><button type="button" data-copy-target="home-code" aria-live="polite"><span data-copy-label>Copy</span><span aria-hidden="true">⧉</span></button></div><pre><code id="home-code"><span class="code-keyword">import</span> * <span class="code-keyword">as</span> THREE <span class="code-keyword">from</span> <span class="code-string">'three'</span>;
+
+      <!-- ================= SECTION 02: DEVELOPER WORKFLOW ================= -->
+      <section class="site-section workflow-section" aria-labelledby="workflow-title">
+        <div class="workflow-grid">
+          <div class="workflow-copy">
+            <p class="section-label"><span lang="en">02 / Developer Workflow</span><span lang="vi">02 / Trải Nghiệm Lập Trình</span></p>
+            <h2 id="workflow-title">
+              <span lang="en">Keep your three.js.<br />Oxygen powers the rest.</span>
+              <span lang="vi">Giữ trọn three.js quen thuộc.<br />Oxygen lo toàn bộ phần còn lại.</span>
+            </h2>
+            <p>
+              <span lang="en">No opinionated UI framework lock-in. Oxygen handles the frame loop, render pipeline, post passes, asset lifecycle and input gestures so you can focus entirely on what dazzles on screen.</span>
+              <span lang="vi">Không ép buộc framework UI. Oxygen quản lý toàn diện vòng lặp khung hình, pipeline render, hậu xử lý HDR, nạp tài nguyên và tương tác con trỏ để bạn tập trung sáng tạo trên canvas.</span>
+            </p>
+
+            <ul class="workflow-features-list">
+              <li>
+                <strong><span lang="en">Deterministic Frame Loop</span><span lang="vi">Vòng lặp khung hình tất định</span></strong>
+                <span><span lang="en">Phased callbacks (input → update → physics → render) with zero garbage collection spikes.</span><span lang="vi">Các pha callback rõ ràng tránh triệt để tình trạng đơ giật do Garbage Collection.</span></span>
+              </li>
+              <li>
+                <strong><span lang="en">Explicit Ownership & Cleanup</span><span lang="vi">Giải phóng tài nguyên tuyệt đối</span></strong>
+                <span><span lang="en">Every component, buffer, pass, and texture has deterministic disposal to prevent WebGL memory leaks.</span><span lang="vi">Mọi component, buffer và post pass đều có cơ chế dispose chuẩn chỉ chống rò rỉ VRAM.</span></span>
+              </li>
+              <li>
+                <strong><span lang="en">First-Class Accessibility</span><span lang="vi">Hỗ trợ tiếp cận toàn diện</span></strong>
+                <span><span lang="en">Built-in reduced motion synchronisation and semantic DOM fallbacks for screen readers.</span><span lang="vi">Tự động tôn trọng cấu hình reduced-motion hệ điều hành và fallback DOM trực quan.</span></span>
+              </li>
+            </ul>
+
+            <a class="text-link" href="./docs/">
+              <span lang="en">Read the getting started guide</span>
+              <span lang="vi">Xem hướng dẫn bắt đầu nhanh</span>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+          </div>
+
+          <!-- Code Workspace Studio -->
+          <div class="code-workspace-card">
+            <div class="code-tabbar" role="tablist" aria-label="Engine Code Samples">
+              <button type="button" class="code-tab active" data-code-tab="pipeline" role="tab" aria-selected="true">pipeline.ts</button>
+              <button type="button" class="code-tab" data-code-tab="particles" role="tab" aria-selected="false">particles.ts</button>
+              <button type="button" class="code-tab" data-code-tab="springs" role="tab" aria-selected="false">springs.ts</button>
+              <button type="button" class="code-tab" data-code-tab="story" role="tab" aria-selected="false">scroll-story.ts</button>
+            </div>
+
+            <div class="site-code">
+              <div class="site-code-toolbar">
+                <span id="code-snippet-filename" class="code-filename">first-scene.ts</span>
+                <button type="button" data-copy-target="home-code" aria-live="polite" class="btn-copy-code">
+                  <span data-copy-label>Copy</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13" aria-hidden="true"><rect x="5" y="5" width="8" height="8" rx="1.5"/><path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11"/></svg>
+                </button>
+              </div>
+              <pre><code id="home-code"><span class="code-keyword">import</span> * <span class="code-keyword">as</span> THREE <span class="code-keyword">from</span> <span class="code-string">'three'</span>;
 <span class="code-keyword">import</span> {
-  createPipeline, onFrame,
-  setRenderFunction, startLoop,
+  createPipeline, PostStack, BloomPass,
+  ColorGradePass, onFrame, startLoop,
 } <span class="code-keyword">from</span> <span class="code-string">'@tunn/oxygen'</span>;
 
+<span class="code-comment">// 1. Initialize deterministic engine loop</span>
 startLoop();
-<span class="code-keyword">const</span> host = document.getElementById(<span class="code-string">'scene'</span>);
-<span class="code-keyword">if</span> (!host) <span class="code-keyword">throw new</span> Error(<span class="code-string">'Scene host not found'</span>);
-<span class="code-keyword">const</span> pipeline = createPipeline(host);
-<span class="code-keyword">const</span> camera = <span class="code-keyword">new</span> THREE.PerspectiveCamera(45, 1, 0.1, 100);
-camera.position.z = 4;
+
+<span class="code-comment">// 2. Create HDR WebGL 2 pipeline with container sizing</span>
+<span class="code-keyword">const</span> host = document.getElementById(<span class="code-string">'scene'</span>)!;
+<span class="code-keyword">const</span> pipeline = createPipeline(host, { hdr: <span class="code-keyword">true</span>, samples: <span class="code-number">4</span> });
+
+<span class="code-comment">// 3. Attach cinematic post-processing stack</span>
+<span class="code-keyword">const</span> post = <span class="code-keyword">new</span> PostStack(pipeline.renderer);
+post.add(<span class="code-keyword">new</span> BloomPass({ threshold: <span class="code-number">0.8</span>, intensity: <span class="code-number">1.2</span>, radius: <span class="code-number">0.75</span> }));
+post.add(<span class="code-keyword">new</span> ColorGradePass({ toneMapping: <span class="code-string">'aces'</span>, outputSRGB: <span class="code-keyword">true</span> }));
+pipeline.setPost(post);
+
+<span class="code-comment">// 4. Add your three.js objects & frame callback</span>
+<span class="code-keyword">const</span> camera = <span class="code-keyword">new</span> THREE.PerspectiveCamera(<span class="code-number">45</span>, <span class="code-number">1</span>, <span class="code-number">0.1</span>, <span class="code-number">100</span>);
+camera.position.z = <span class="code-number">5</span>;
 
 <span class="code-keyword">const</span> mesh = <span class="code-keyword">new</span> THREE.Mesh(
-  <span class="code-keyword">new</span> THREE.TorusKnotGeometry(),
-  <span class="code-keyword">new</span> THREE.MeshNormalMaterial(),
+  <span class="code-keyword">new</span> THREE.TorusKnotGeometry(<span class="code-number">1</span>, <span class="code-number">0.3</span>, <span class="code-number">180</span>, <span class="code-number">24</span>),
+  <span class="code-keyword">new</span> THREE.MeshStandardMaterial({ color: <span class="code-string">'#00f5a0'</span>, roughness: <span class="code-number">0.2</span> })
 );
 pipeline.scene.add(mesh);
-onFrame((_time, delta) =&gt; { mesh.rotation.y += delta * 0.001; });
-setRenderFunction(() =&gt; {
-  camera.aspect = pipeline.size.width / pipeline.size.height;
-  camera.updateProjectionMatrix();
+
+onFrame((_time, delta) =&gt; {
+  mesh.rotation.y += delta * <span class="code-number">0.0008</span>;
   pipeline.render(camera);
-});</code></pre></div></div>
+});</code></pre>
+            </div>
+          </div>
+        </div>
       </section>
-      <section class="site-section" aria-labelledby="explore-title"><p class="section-label"><span lang="en">03 / See what is possible</span><span lang="vi">03 / Khám phá khả năng</span></p><div class="section-heading"><h2 id="explore-title"><span lang="en">Built to be played with.</span><span lang="vi">Sẵn sàng để khám phá.</span></h2><a class="text-link" href="./examples/"><span lang="en">All examples</span><span lang="vi">Tất cả ví dụ</span><span aria-hidden="true">↗</span></a></div><div class="home-examples"><a class="preview-card" href="./particles/"><div class="preview-image"><img src="./previews/particles.webp" width="800" height="500" loading="lazy" alt="GPU particles following a curl-noise field" /><span class="preview-open" aria-hidden="true">↗</span></div><div class="preview-caption"><h3>GPU particles</h3><span>SIMULATION / INTERACTION</span></div></a><a class="preview-card" href="./post/"><div class="preview-image"><img src="./previews/post.webp" width="800" height="500" loading="lazy" alt="Emissive three-dimensional objects with bloom post-processing" /><span class="preview-open" aria-hidden="true">↗</span></div><div class="preview-caption"><h3>Post-processing</h3><span>RENDERING / HDR</span></div></a></div></section>
-      <section class="home-cta"><div><p class="section-label"><span lang="en">Your next idea starts here</span><span lang="vi">Ý tưởng tiếp theo bắt đầu từ đây</span></p><h2><span lang="en">Make something<br /><em>worth interacting with.</em></span><span lang="vi">Tạo nên trải nghiệm<br /><em>đáng để tương tác.</em></span></h2></div><div><a class="button" href="./docs/"><span lang="en">Start building with Oxygen</span><span lang="vi">Bắt đầu với Oxygen</span><span aria-hidden="true">↗</span></a><p><span lang="en">Private beta. Start with a local checkout.</span><span lang="vi">Private beta. Bắt đầu từ bản sao cục bộ.</span></p></div></section>
+
+      <!-- ================= SECTION 03: EXAMPLES SHOWCASE ================= -->
+      <section class="site-section" id="examples" aria-labelledby="explore-title">
+        <p class="section-label"><span lang="en">03 / Production Showcases</span><span lang="vi">03 / Các Bản Demo Thực Tế</span></p>
+        <div class="section-heading">
+          <h2 id="explore-title">
+            <span lang="en">Interactive experiments.<br />Ready to explore.</span>
+            <span lang="vi">Thực nghiệm tương tác.<br />Sẵn sàng khám phá.</span>
+          </h2>
+          <a class="text-link" href="./examples/">
+            <span lang="en">View all examples</span>
+            <span lang="vi">Xem tất cả ví dụ</span>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+          </a>
+        </div>
+
+        <div class="showcases-grid">
+          <!-- Item 1 -->
+          <a class="showcase-card" href="./particles/">
+            <div class="showcase-thumb">
+              <img src="./previews/particles.webp" width="800" height="500" loading="lazy" alt="GPU particles following a curl-noise field in Oxygen" />
+              <div class="showcase-overlay">
+                <span class="showcase-open-badge">
+                  <span lang="en">Launch Demo</span>
+                  <span lang="vi">Chạy Demo</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="showcase-info">
+              <div>
+                <h3>GPU Particles & Curl Noise</h3>
+                <p><span lang="en">260,000 real-time particles with velocity simulation, curl fields, and pointer attraction.</span><span lang="vi">260.000 hạt render thời gian thực với mô phỏng curl noise và tương tác chuột.</span></p>
+              </div>
+              <span class="showcase-tag">GPGPU / SIMULATION</span>
+            </div>
+          </a>
+
+          <!-- Item 2 -->
+          <a class="showcase-card" href="./post/">
+            <div class="showcase-thumb">
+              <img src="./previews/post.webp" width="800" height="500" loading="lazy" alt="Emissive three-dimensional objects with bloom post-processing" />
+              <div class="showcase-overlay">
+                <span class="showcase-open-badge">
+                  <span lang="en">Launch Demo</span>
+                  <span lang="vi">Chạy Demo</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="showcase-info">
+              <div>
+                <h3>HDR Post-Stack & Bloom</h3>
+                <p><span lang="en">Emissive meshes with multi-pass bloom, chromatic aberration, and ACES tone mapping.</span><span lang="vi">Các khối phát sáng với bloom đa cấp, tán sắc quang học và cân chỉnh màu ACES.</span></p>
+              </div>
+              <span class="showcase-tag">RENDERING / HDR</span>
+            </div>
+          </a>
+
+          <!-- Item 3 -->
+          <a class="showcase-card" href="./physics/">
+            <div class="showcase-thumb">
+              <img src="./previews/physics.webp" width="800" height="500" loading="lazy" alt="Rigid bodies and Verlet cloth simulation" />
+              <div class="showcase-overlay">
+                <span class="showcase-open-badge">
+                  <span lang="en">Launch Demo</span>
+                  <span lang="vi">Chạy Demo</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="showcase-info">
+              <div>
+                <h3>Physics, Cloth & Springs</h3>
+                <p><span lang="en">Rapier 3D rigid bodies, Verlet dynamic cloth, and closed-form interactive springs.</span><span lang="vi">Vật lý va chạm Rapier 3D, mô phỏng vải vóc Verlet và lò xo đàn hồi closed-form.</span></p>
+              </div>
+              <span class="showcase-tag">PHYSICS / VERLET</span>
+            </div>
+          </a>
+
+          <!-- Item 4 -->
+          <a class="showcase-card" href="./router/">
+            <div class="showcase-thumb">
+              <img src="./previews/router.webp" width="800" height="500" loading="lazy" alt="Page routing with WebGL scene transitions" />
+              <div class="showcase-overlay">
+                <span class="showcase-open-badge">
+                  <span lang="en">Launch Demo</span>
+                  <span lang="vi">Chạy Demo</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="showcase-info">
+              <div>
+                <h3>Page Transitions & Routing</h3>
+                <p><span lang="en">History router with abortable scene transitions and smooth camera choreography.</span><span lang="vi">Router quản lý lịch sử duyệt trang cùng chuyển cảnh 3D mượt mà không tải lại.</span></p>
+              </div>
+              <span class="showcase-tag">ROUTER / TRANSITIONS</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 04: VIP CALL TO ACTION ================= -->
+      <section class="home-cta" aria-labelledby="cta-title">
+        <div class="cta-backdrop-glow" aria-hidden="true"></div>
+        <div class="cta-content">
+          <p class="section-label"><span lang="en">Your next creative project starts here</span><span lang="vi">Dự án sáng tạo tiếp theo của bạn bắt đầu tại đây</span></p>
+          <h2 id="cta-title">
+            <span lang="en">Make something<br /><em>worth experiencing.</em></span>
+            <span lang="vi">Kiến tạo trải nghiệm<br /><em>thực sự khác biệt.</em></span>
+          </h2>
+          <p class="cta-sub">
+            <span lang="en">Oxygen gives your ideas the speed, visual depth, and physical feel they deserve.</span>
+            <span lang="vi">Oxygen mang lại tốc độ, chiều sâu thị giác và cảm giác tương tác vật lý xứng tầm cho mọi ý tưởng.</span>
+          </p>
+        </div>
+        <div class="cta-box">
+          <div class="cta-terminal">
+            <code>$ git clone https://github.com/Tunakite03/Oxygen.git</code>
+          </div>
+          <div class="cta-buttons">
+            <a class="button" href="./docs/">
+              <span lang="en">Start building with Oxygen</span>
+              <span lang="vi">Bắt đầu với Oxygen</span>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M3 13 13 3M5 3h8v8"/></svg>
+            </a>
+            <a class="button button-outline" href="https://github.com/Tunakite03/Oxygen" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+              <span>GitHub</span>
+            </a>
+          </div>
+          <p class="cta-note">
+            <span lang="en">MIT / Private Beta · Works with three.js r186+ · TypeScript native</span>
+            <span lang="vi">Bản beta · Tương thích three.js r186+ · TypeScript nguyên bản</span>
+          </p>
+        </div>
+      </section>
     </main>
     <!-- site:footer -->
     <script type="module" src="./home.ts"></script>

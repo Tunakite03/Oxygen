@@ -1,49 +1,57 @@
-/** Viewport size, device flags and pointer position. */
-export const stage = { width: window.innerWidth, height: window.innerHeight };
+import { UnsupportedFeatureError } from './errors';
 
-export const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2, down: false };
-
+/** Import-safe viewport snapshot. Browser listeners are installed by initializeStage(). */
+export const stage = { width: typeof window === 'undefined' ? 1 : window.innerWidth, height: typeof window === 'undefined' ? 1 : window.innerHeight };
+export const pointer = { x: stage.width / 2, y: stage.height / 2, down: false };
+const userAgent = typeof navigator === 'undefined' ? '' : navigator.userAgent;
+const touchPoints = typeof navigator === 'undefined' ? 0 : navigator.maxTouchPoints;
 export const device = {
-  /** Touch-first phones and tablets (iPadOS reports as Macintosh with touch points). */
-  mobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent)),
-  touch: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
-  safari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+  mobile: /iPhone|iPad|iPod|Android/i.test(userAgent) || (touchPoints > 1 && /Macintosh/.test(userAgent)),
+  touch: (typeof window !== 'undefined' && 'ontouchstart' in window) || touchPoints > 0,
+  safari: /^((?!chrome|android).)*safari/i.test(userAgent),
 };
 
-/** Device pixel ratio capped at 2. */
 export function getDPR(): number {
-  return Math.min(window.devicePixelRatio || 1, 2);
+  return typeof window === 'undefined' ? 1 : Math.min(window.devicePixelRatio || 1, 2);
 }
 
-type ResizeListener = () => void;
-const resizeListeners = new Set<ResizeListener>();
+const resizeListeners = new Set<() => void>();
+let events: AbortController | null = null;
 
-export function onResize(listener: ResizeListener): () => void {
+/** Installs one shared set of viewport listeners. Call in the browser, after mounting. */
+export function initializeStage(): void {
+  if (typeof window === 'undefined') throw new UnsupportedFeatureError('Viewport', 'initializeStage requires a browser');
+  if (events) return;
+  events = new AbortController();
+  const { signal } = events;
+  stage.width = window.innerWidth;
+  stage.height = window.innerHeight;
+  window.addEventListener('resize', () => {
+    stage.width = window.innerWidth;
+    stage.height = window.innerHeight;
+    for (const listener of resizeListeners) listener();
+  }, { signal });
+  const move = (event: PointerEvent): void => { pointer.x = event.clientX; pointer.y = event.clientY; };
+  window.addEventListener('pointermove', move, { passive: true, signal });
+  window.addEventListener('pointerdown', (event) => { pointer.down = true; move(event); }, { signal });
+  const release = (): void => {
+    pointer.down = false;
+    if (device.mobile) { pointer.x = stage.width / 2; pointer.y = stage.height / 2; }
+  };
+  window.addEventListener('pointerup', release, { signal });
+  window.addEventListener('pointercancel', release, { signal });
+}
+
+/** Releases shared browser listeners and subscribers when the entire application unmounts. */
+export function disposeStage(): void {
+  events?.abort();
+  events = null;
+  resizeListeners.clear();
+  pointer.down = false;
+}
+
+export function onResize(listener: () => void): () => void {
+  initializeStage();
   resizeListeners.add(listener);
   return () => resizeListeners.delete(listener);
 }
-
-function handleResize(): void {
-  stage.width = window.innerWidth;
-  stage.height = window.innerHeight;
-  for (const l of resizeListeners) l();
-}
-
-function handlePointer(e: PointerEvent): void {
-  pointer.x = e.clientX;
-  pointer.y = e.clientY;
-}
-
-window.addEventListener('resize', handleResize);
-window.addEventListener('pointermove', handlePointer, { passive: true });
-window.addEventListener('pointerdown', (e) => {
-  pointer.down = true;
-  handlePointer(e);
-});
-window.addEventListener('pointerup', () => {
-  pointer.down = false;
-  if (device.mobile) {
-    pointer.x = stage.width / 2;
-    pointer.y = stage.height / 2;
-  }
-});

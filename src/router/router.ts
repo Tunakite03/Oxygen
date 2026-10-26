@@ -105,6 +105,16 @@ function isHistoryState(value: unknown): value is HistoryState {
   return typeof value === 'object' && value !== null && typeof (value as { oxygenIndex?: unknown }).oxygenIndex === 'number';
 }
 
+/** Decoded pathname, or null when it contains a malformed percent-escape (nothing can match such a path). */
+function decodePathname(pathname: string): string | null {
+  try {
+    return decodeURI(pathname);
+  } catch (error) {
+    if (error instanceof URIError) return null;
+    throw error;
+  }
+}
+
 export class Router {
   private readonly routes: CompiledRoute[];
   private readonly mode: 'history' | 'hash';
@@ -139,11 +149,14 @@ export class Router {
   /** Matches a router path (`/work/a?x=1#top`). Throws `RouteNotFoundError` when nothing matches. */
   resolve(target: string): RouteMatch {
     const url = new URL(target, 'http://router.local');
-    const path = decodeURI(url.pathname);
-    for (const { definition, compiled } of this.routes) {
-      const params = matchPath(compiled, url.pathname);
-      if (params) return { name: definition.name, path, params, query: url.searchParams, hash: url.hash, route: definition };
+    const decoded = decodePathname(url.pathname);
+    if (decoded !== null) {
+      for (const { definition, compiled } of this.routes) {
+        const params = matchPath(compiled, url.pathname);
+        if (params) return { name: definition.name, path: decoded, params, query: url.searchParams, hash: url.hash, route: definition };
+      }
     }
+    const path = decoded ?? url.pathname;
     if (this.options.notFound) return { name: this.options.notFound.name, path, params: {}, query: url.searchParams, hash: url.hash, route: this.options.notFound };
     throw new RouteNotFoundError(path);
   }

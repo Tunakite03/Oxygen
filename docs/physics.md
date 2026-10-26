@@ -64,7 +64,7 @@ npm install @dimforge/rapier3d-compat
 ```
 
 ```ts
-import { PhysicsWorld } from '@tunn/oxygen';
+import { PhysicsWorld } from '@tunn/oxygen/physics';
 
 const physics = await PhysicsWorld.create({ gravity: [0, -9.81, 0] }); // imports and initialises Rapier
 physics.add(floor, { type: 'fixed', friction: 0.8 });

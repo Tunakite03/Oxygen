@@ -1,10 +1,11 @@
+import { prefersReducedMotion } from '../accessibility/motion';
 import { GazeCamera } from '../camera/gazeCamera';
 import { Component } from '../core/component';
 import { emit, getState, listen, setState } from '../core/events';
 import { frame, onFrame } from '../core/loop';
 import { clamp, lerp, range } from '../core/math';
 import { device, onResize, stage } from '../core/stage';
-import { getHeightFromCamera, getWidthFromCamera, setWorld, units } from '../core/world';
+import { clearWorld, getHeightFromCamera, getWidthFromCamera, setWorld, units } from '../core/world';
 import type { Pipeline } from '../gl/pipeline';
 import { Interaction3D, setMainInteraction } from '../input/interaction3d';
 import { scrollState } from '../scroll/scrollState';
@@ -63,6 +64,13 @@ export class ScrollStory<S extends StoryScene = StoryScene> extends Component {
   private readonly lerpDelta: number;
   private visibleScenes: string[] = [];
   private readonly options: Required<Omit<ScrollStoryOptions, 'scroll'>>;
+  private readonly interaction: Interaction3D;
+  private readonly events = new AbortController();
+  private observer: ResizeObserver | null = null;
+  private offLoader: (() => void) | null = null;
+  private offResize: (() => void) | null = null;
+  private offFrame: (() => void) | null = null;
+  private resizeTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     protected readonly pipeline: Pipeline,
@@ -91,7 +99,8 @@ export class ScrollStory<S extends StoryScene = StoryScene> extends Component {
     this.fixedCamera.resize(stage.width / stage.height);
     pipeline.scene.add(this.camera.group, this.fixedCamera.group);
     setWorld({ renderer: pipeline.renderer, scene: pipeline.scene, camera: this.camera, fixedCamera: this.fixedCamera, uiScene: pipeline.uiScene, beforePassesScene: pipeline.beforePassesScene, sceneTexture: pipeline.sceneRT.texture, dpr: pipeline.dpr });
-    setMainInteraction(new Interaction3D(() => this.camera.camera));
+    this.interaction = new Interaction3D(() => this.camera.camera);
+    setMainInteraction(this.interaction);
     this.scroll = new VirtualScroll({ drag: device.mobile, mouseWheel: true, limit: true, keyboard: true, scale: 1, touchScale: 1, ...options.scroll });
     setState('Story/scroll', this.scroll);
     this.updateScreenWorld();
@@ -115,12 +124,14 @@ export class ScrollStory<S extends StoryScene = StoryScene> extends Component {
 
   /** Loads every scene (assets, child components, DOM sections); progress reports scenes as they finish. */
   async load(configs: SceneConfig<S>[], onProgress: (loaded: number, total: number) => void): Promise<void> {
+    if (this.destroyed) return;
     this.configs = configs;
     let loaded = 0;
     await Promise.all(
       configs.map(async ({ scene }) => {
         this.addChild(scene);
         await scene.load(this.root);
+        if (this.destroyed) return;
         onProgress(++loaded, configs.length);
       }),
     );
@@ -133,7 +144,9 @@ export class ScrollStory<S extends StoryScene = StoryScene> extends Component {
 
   /** Lays out and initialises the scenes, then runs the frame loop once the loader finishes. Call after `load`. */
   async start(): Promise<void> {
+    if (this.destroyed) return;
     this.onStart();
+    if (this.destroyed) return;
     const scroll = this.scroll;
     this.totalHeight = 0;
     const inits: Promise<void>[] = [];
@@ -147,29 +160,38 @@ export class ScrollStory<S extends StoryScene = StoryScene> extends Component {
       inits.push(scene.init());
     });
     await Promise.all(inits);
+    if (this.destroyed) return;
     scrollState.ready = true;
     for (const { scene } of this.configs) scene.ui?.computeScrollBounds();
     emit('Global/scenesReady');
+    if (this.destroyed) return;
 
-    new ResizeObserver(() => {
+    this.observer = new ResizeObserver(() => {
+      if (this.destroyed) return;
       scroll.max.y = this.root.clientHeight - stage.height;
       scrollState.max = scroll.max.y;
-    }).observe(this.root);
-    window.addEventListener('wheel', () => emit('Global/wheel'), { passive: true });
+    });
+    this.observer.observe(this.root);
+    window.addEventListener('wheel', () => emit('Global/wheel'), { passive: true, signal: this.events.signal });
     scroll.max.y = this.root.clientHeight - stage.height;
     scroll.enabled = false;
     this.loop();
     await new Promise((r) => requestAnimationFrame(r));
+    if (this.destroyed) return;
     this.loop();
-    listen('Global/loaderFinished', () => {
+    if (this.destroyed) return;
+    this.offLoader = listen('Global/loaderFinished', () => {
+      this.offLoader?.();
+      this.offLoader = null;
+      if (this.destroyed) return;
       this.onLoaderFinished();
+      if (this.destroyed) return;
       this.delayedCall(() => (scroll.enabled = true), 1500);
-      onFrame(() => this.loop(), 'afterLoops');
+      this.offFrame = onFrame(() => this.loop(), 'afterLoops');
     });
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    onResize(() => {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => void this.handleResize(), 200);
+    this.offResize = onResize(() => {
+      if (this.resizeTimer !== null) clearTimeout(this.resizeTimer);
+      this.resizeTimer = setTimeout(() => void this.handleResize(), 200);
     });
     await this.handleResize();
   }
@@ -208,8 +230,9 @@ export class ScrollStory<S extends StoryScene = StoryScene> extends Component {
   protected afterUpdate(): void {}
 
   private loop(): void {
+    if (this.destroyed) return;
     const scroll = this.scroll;
-    this.lerpedScrollY = lerp(-scroll.y, this.lerpedScrollY, this.lerpDelta);
+    this.lerpedScrollY = prefersReducedMotion() ? -scroll.y : lerp(-scroll.y, this.lerpedScrollY, this.lerpDelta);
     const finalScrollY = this.lerpedScrollY * units.perPixelY;
     const prev = getState<number>('Story/scrollY') ?? 0;
     setState('Story/scrollDirection', Math.sign(finalScrollY - prev));
@@ -221,7 +244,7 @@ export class ScrollStory<S extends StoryScene = StoryScene> extends Component {
     this.fixedCamera.group.position.y = finalScrollY;
     this.fixedCamera.update(frame.time);
     this.lerpedScrollDeltaY = lerp(scroll.delta.y || 0, this.lerpedScrollDeltaY, this.lerpDelta);
-    this.camera.group.rotation.x = clamp(lerp(0.002 * this.lerpedScrollDeltaY, this.camera.group.rotation.x, 0.05), -0.2, 0.2);
+    this.camera.group.rotation.x = prefersReducedMotion() ? 0 : clamp(lerp(0.002 * this.lerpedScrollDeltaY, this.camera.group.rotation.x, 0.05), -0.2, 0.2);
     this.camera.update(frame.time);
     for (const { scene } of this.configs) {
       // Top/bottom custom paddings are crossed here; scenes are tuned against this mapping, so keep it.
@@ -243,6 +266,7 @@ export class ScrollStory<S extends StoryScene = StoryScene> extends Component {
   }
 
   private async handleResize(): Promise<void> {
+    if (this.destroyed) return;
     const isMobile = device.mobile || stage.width < this.options.mobileBreakpoint;
     const gaze = isMobile ? this.options.gaze.mobile : this.options.gaze.desktop;
     this.camera.moveXY.set(gaze, gaze);
@@ -256,8 +280,34 @@ export class ScrollStory<S extends StoryScene = StoryScene> extends Component {
       scene.setLayout({ screenHeightWorld: this.screenHeightWorld, height: this.sceneHeight(scene.initialHeight, scene.initialMobileHeight), totalHeight: this.totalHeight, marginTop, marginBottom });
       this.totalHeight += scene.heightWorld + marginBottom * this.screenHeightWorld;
       await scene.handleViewResize();
+      if (this.destroyed) return;
     }
     this.scroll.max.y = this.root.clientHeight - stage.height;
     scrollState.max = this.scroll.max.y;
+  }
+
+  override destroy(): void {
+    if (this.destroyed) return;
+    super.destroy();
+    this.events.abort();
+    this.observer?.disconnect();
+    this.observer = null;
+    this.offLoader?.();
+    this.offResize?.();
+    this.offFrame?.();
+    this.offLoader = this.offResize = this.offFrame = null;
+    if (this.resizeTimer !== null) clearTimeout(this.resizeTimer);
+    this.resizeTimer = null;
+    this.scroll.destroy();
+    this.interaction.destroy();
+    this.camera.group.removeFromParent();
+    this.fixedCamera.group.removeFromParent();
+    this.configs = [];
+    clearWorld(this.camera);
+    if (getState<VirtualScroll>('Story/scroll') === this.scroll) {
+      scrollState.ready = false;
+      setState('Story/scroll', undefined);
+      setState('Story/visibleScenes', []);
+    }
   }
 }

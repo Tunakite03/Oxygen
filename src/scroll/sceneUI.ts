@@ -29,6 +29,8 @@ export class SceneUI {
   onResize: (() => void) | null = null;
   afterScroll: ((scrollY: number) => void) | null = null;
   private readonly opts: Required<Omit<SceneUIOptions, 'html'>>;
+  private offFrame: (() => void) | null = null;
+  private destroyed = false;
 
   constructor(root: HTMLElement, options: SceneUIOptions) {
     this.opts = {
@@ -44,7 +46,7 @@ export class SceneUI {
     root.appendChild(this.element);
     if (this.opts.useScrollTrigger) {
       queueMicrotask(() => this.computeScrollBounds());
-      onFrame(() => this.loop());
+      this.offFrame = onFrame(() => this.loop());
     }
   }
 
@@ -59,7 +61,7 @@ export class SceneUI {
   }
 
   computeScrollBounds(): void {
-    if (!scrollState.ready) return;
+    if (this.destroyed || !scrollState.ready) return;
     const rect = this.element.getBoundingClientRect();
     if (rect.width === 0 && rect.height === 0) return;
     const top = rect.top + scrollState.y - stage.height;
@@ -98,7 +100,7 @@ export class SceneUI {
   }
 
   private loop(): void {
-    if (!scrollState.ready) return;
+    if (this.destroyed || !scrollState.ready) return;
     const y = scrollState.y;
     if (y >= this.scrollStart && y <= this.scrollEnd) this.triggerInView();
     if (y < this.scrollStart) this.triggerOutAbove();
@@ -121,5 +123,12 @@ export class SceneUI {
   handleUIResize(): void {
     this.computeScrollBounds();
     this.onResize?.();
+  }
+
+  destroy(): void {
+    this.destroyed = true;
+    this.offFrame?.();
+    this.offFrame = null;
+    this.element.remove();
   }
 }

@@ -2,3 +2,7 @@ node_modules/
 dist/
 examples-dist/
 *.log
+
+docs-dist/
+playwright-report/
+test-results/

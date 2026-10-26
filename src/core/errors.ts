@@ -66,3 +66,11 @@ export class RouteNotFoundError extends Error {
     this.name = 'RouteNotFoundError';
   }
 }
+
+/** A released resource cannot be restarted; create a new instance instead. */
+export class DisposedError extends Error {
+  constructor(readonly resource: string) {
+    super(`${resource} has been disposed`);
+    this.name = 'DisposedError';
+  }
+}

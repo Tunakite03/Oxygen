@@ -23,6 +23,11 @@ export function setWorld(world: WorldContext): void {
   ctx = world;
 }
 
+/** Releases the context only if it still belongs to the destroyed story. */
+export function clearWorld(camera: GazeCamera): void {
+  if (ctx?.camera === camera) ctx = null;
+}
+
 export function world(): WorldContext {
   if (!ctx) throw new Error('World accessed before bootstrap assigned it');
   return ctx;

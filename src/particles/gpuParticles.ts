@@ -1,3 +1,4 @@
+import { prefersReducedMotion } from '../accessibility/motion';
 import * as THREE from 'three';
 import { createRandom, randomRange } from '../core/random';
 import type { RandomFn } from '../core/random';
@@ -326,6 +327,7 @@ export class GPUParticles {
 
   /** Advances the simulation by `deltaMs` (clamped to 1/30 s so a background tab does not explode it). */
   update(deltaMs: number): void {
+    if (prefersReducedMotion()) return;
     const dt = Math.min(Math.max(deltaMs, 0) / 1000, 1 / 30) * this.timeScale;
     if (dt === 0) return;
     this.time += dt;

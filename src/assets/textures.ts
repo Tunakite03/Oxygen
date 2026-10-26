@@ -1,15 +1,15 @@
 import * as THREE from 'three';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { AssetLoadError } from '../core/errors';
+import { fetchBuffer } from '../core/net';
 import { cleanAssetPath } from '../core/paths';
 
 /**
  * Texture cache: raw (non colour-managed) values, bitmaps flipped at decode, clamp or repeat wrapping, one texture per
- * path and alpha mode. Loads are tracked so a boot sequence can await them before GPU warm-up.
+ * path and alpha mode. Loads are tracked so a boot sequence can await them before GPU warm-up. A failed load is
+ * evicted from the cache so the next request downloads again.
  */
 // Bitmaps are decoded premultiplied unless a caller asks for `premultiplyAlpha: false` (RGBM env maps, PBR inputs).
-const premultipliedLoader = new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'premultiply' });
-const straightLoader = new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'none' });
 let ktx2Loader: KTX2Loader | null = null;
 const cache = new Map<string, THREE.Texture>();
 const pending = new Set<Promise<unknown>>();
@@ -20,12 +20,13 @@ export interface TextureSetup {
 }
 
 export function initTextures(renderer: THREE.WebGLRenderer, setup: TextureSetup): void {
+  ktx2Loader?.dispose();
   ktx2Loader = new KTX2Loader().setTranscoderPath(setup.ktx2TranscoderPath).detectSupport(renderer);
 }
 
 function track<T>(p: Promise<T>): Promise<T> {
   pending.add(p);
-  void p.finally(() => pending.delete(p));
+  void p.then(() => pending.delete(p), () => pending.delete(p));
   return p;
 }
 
@@ -41,6 +42,16 @@ function configure(texture: THREE.Texture, repeat: boolean): void {
 
 export interface TextureOptions {
   premultiplyAlpha?: boolean;
+}
+
+/** Downloads through the shared retry and timeout policy, then decodes off the main thread. */
+async function decodeBitmap(url: string, premultiply: boolean): Promise<ImageBitmap> {
+  const data = await fetchBuffer(url);
+  try {
+    return await createImageBitmap(new Blob([data]), { imageOrientation: 'flipY', premultiplyAlpha: premultiply ? 'premultiply' : 'none' });
+  } catch (error) {
+    throw new AssetLoadError(url, error instanceof Error ? error.message : 'image decode failed');
+  }
 }
 
 /**
@@ -62,21 +73,16 @@ function load(path: string, repeat: boolean, options: TextureOptions): THREE.Tex
   configure(texture, repeat);
   cache.set(key, texture);
 
-  const url = src;
-  const promise = new Promise<void>((resolve, reject) => {
-    (premultiply ? premultipliedLoader : straightLoader).load(
-      url,
-      (bitmap) => {
-        texture.image = bitmap;
-        texture.flipY = false; // already flipped by ImageBitmap options
-        configure(texture, texture.wrapS === THREE.RepeatWrapping);
-        resolve();
-      },
-      undefined,
-      (err) => reject(new AssetLoadError(url, err instanceof Error ? err.message : 'image decode failed')),
-    );
+  const promise = decodeBitmap(src, premultiply).then((bitmap) => {
+    texture.image = bitmap;
+    texture.flipY = false; // already flipped by ImageBitmap options
+    configure(texture, texture.wrapS === THREE.RepeatWrapping);
   });
-  void track(promise).catch((err: unknown) => console.error('[textures] load failed', { url, error: String(err) }));
+  void track(promise).catch((err: unknown) => {
+    if (cache.get(key) === texture) cache.delete(key);
+    texture.dispose();
+    console.error('[textures] load failed; the next request will retry', { url: src, error: String(err) });
+  });
   return texture;
 }
 

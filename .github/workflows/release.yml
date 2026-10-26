@@ -1,0 +1,27 @@
+name: Publish npm beta
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - run: npm ci
+      - run: npm run release:check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run verify
+      - run: npm run build:docs
+      - run: npm run test:browser
+      - run: npm run test:package
+      - run: npm publish --provenance --access public --tag next

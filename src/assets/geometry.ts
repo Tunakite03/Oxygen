@@ -26,7 +26,7 @@ const binHeaderSchema = z.object({
 const jsonGeometrySchema = z.object({
   metadata: z.object({ type: z.string() }).loose(),
   data: z.object({
-    attributes: z.record(z.string(), z.object({ type: z.string(), itemSize: z.number().int(), array: z.array(z.number()) }).loose()),
+    attributes: z.record(z.string(), z.object({ type: z.string(), itemSize: z.number().int().positive(), array: z.array(z.number()), normalized: z.boolean().default(false) }).loose()),
     index: z.object({ type: z.string(), array: z.array(z.number()) }).loose().optional(),
   }),
   userData: z.record(z.string(), z.unknown()).optional(),
@@ -250,7 +250,9 @@ async function buildJsonGeometry(url: string): Promise<THREE.BufferGeometry> {
   const parsed = jsonGeometrySchema.parse(await fetchJson(url));
   const geometry = new THREE.BufferGeometry();
   for (const [name, attr] of Object.entries(parsed.data.attributes)) {
-    geometry.setAttribute(name, new THREE.BufferAttribute(new Float32Array(attr.array), attr.itemSize));
+    const ArrayType = TYPED_ARRAYS.find((ctor) => ctor.name === attr.type);
+    if (!ArrayType) throw new GeometryFormatError(url, `attribute ${name} has unsupported array type ${attr.type}`);
+    geometry.setAttribute(name, new THREE.BufferAttribute(new ArrayType(attr.array), attr.itemSize, attr.normalized));
   }
   if (parsed.data.index) {
     const max = parsed.data.index.array.reduce((m, v) => Math.max(m, v), 0);

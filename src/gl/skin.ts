@@ -131,8 +131,12 @@ export class Skin extends THREE.Mesh<THREE.BufferGeometry, THREE.RawShaderMateri
 
   update(): void {
     let total = 0;
-    for (const a of this.skinAnimations) total += a.weight;
-    this.skinAnimations.forEach((a, i) => a.update(total || 1, i === 0));
+    for (const animation of this.skinAnimations) {
+      if (animation.weight === 0) continue;
+      const first = total === 0;
+      total += animation.weight;
+      animation.update(total, first);
+    }
     if (!this.autoUpdateBoneTexture) this.updateBoneTexture();
   }
 
@@ -145,6 +149,10 @@ export class Skin extends THREE.Mesh<THREE.BufferGeometry, THREE.RawShaderMateri
     this.boneTexture.needsUpdate = true;
   }
 
+  /**
+   * Updates the mesh and skeleton transforms, then uploads automatic bone textures.
+   * @param force - Recalculate the mesh world transform even if it is unchanged.
+   */
   override updateMatrixWorld(force?: boolean): void {
     super.updateMatrixWorld(force);
     this.root.updateMatrixWorld(true);

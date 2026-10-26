@@ -50,7 +50,6 @@ export * from './particles/gpuParticles';
 export * from './particles/gpuSimulation';
 export * from './particles/noise.glsl';
 
-export * from './physics/rigid';
 export * from './physics/spring';
 export * from './physics/verlet';
 
@@ -79,3 +78,7 @@ export * from './ui/domTween';
 
 export * from './debug/gui';
 export * from './debug/perfMonitor';
+
+export * from './accessibility/motion';
+export * from './accessibility/fallback';
+export * from './assets/gltf';

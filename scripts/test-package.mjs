@@ -2,6 +2,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { stripVTControlCharacters } from 'node:util';
 import { chromium } from '@playwright/test';
 
 const root = new URL('../', import.meta.url);
@@ -57,7 +58,7 @@ const assets = new GLTFAssets(); assets.dispose(); stopLoop();
   const timer = setTimeout(() => rejectAddress(new Error('Consumer preview failed to start')), 30000);
   server.once('error', rejectAddress);
   server.once('exit', code => rejectAddress(new Error(`Consumer preview exited: ${code}`)));
-  server.stdout.on('data', chunk => { const match = String(chunk).match(/http:\/\/127\.0\.0\.1:\d+\//); if (match) resolveAddress(match[0]); });
+  server.stdout.on('data', chunk => { const match = stripVTControlCharacters(String(chunk)).match(/http:\/\/127\.0\.0\.1:\d+\//); if (match) resolveAddress(match[0]); });
   server.stderr.on('data', chunk => process.stderr.write(chunk));
   let url;
   try { url = await address; } finally { clearTimeout(timer); }

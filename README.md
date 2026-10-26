@@ -130,7 +130,7 @@ The page needs a positioned container for the canvas and a story root whose chil
 
 ## Examples
 
-`npm run dev` serves `examples/`:
+`npm run dev` serves the website from `website/`. The homepage links to documentation, API reference and the examples gallery. `npm run build:website` builds the standalone site into `website/dist/`; `npm run preview:website` previews it. Live demos include:
 
 | Example | Shows |
 | --- | --- |

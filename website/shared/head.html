@@ -1,0 +1,12 @@
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0c0e12" />
+<link rel="icon" href="{{root}}favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="{{root}}shared/site.css" />
+<script>
+  try {
+    document.documentElement.lang = localStorage.getItem('oxygen-reference-lang') === 'vi' ? 'vi' : 'en';
+  } catch (error) {
+    if (!(error instanceof DOMException)) throw error;
+  }
+</script>
+<script type="module" src="{{root}}shared/site.ts"></script>

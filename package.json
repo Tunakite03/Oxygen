@@ -23,7 +23,10 @@
     "README.md"
    ],
   "scripts": {
-    "dev": "vite --config vite.examples.config.ts --host",
+    "dev": "vite --config website/vite.config.ts --host",
+    "dev:website": "vite --config website/vite.config.ts --host",
+    "build:website": "vite build --config website/vite.config.ts",
+    "preview:website": "vite preview --config website/vite.config.ts --host",
     "build": "node scripts/build.mjs",
     "prepare": "node scripts/build.mjs",
     "build:examples": "vite build --config vite.examples.config.ts",

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Oxygen — A new dimension for the web</title>
+    <meta name="description" content="Oxygen is a TypeScript WebGL engine on three.js. Build expressive websites with rendering, motion, particles, physics and scroll stories." />
+    <!-- site:head -->
+    <link rel="stylesheet" href="./home.css" />
+  </head>
+  <body data-page="home" data-title-en="Oxygen — A new dimension for the web" data-title-vi="Oxygen — Thêm một chiều cho web">
+    <!-- site:header -->
+    <main id="main-content" class="page-shell" tabindex="-1">
+      <section class="home-hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <a class="release-link" href="./docs/#installation"><span class="release-dot" aria-hidden="true"></span>v0.3.0-beta.1<span class="release-divider"></span><span lang="en">A little engine. A lot of possibility.</span><span lang="vi">Engine nhỏ. Khả năng lớn.</span><span aria-hidden="true">↗</span></a>
+          <h1 id="hero-title"><span lang="en">Give your ideas<br />a <em>new dimension.</em></span><span lang="vi">Thêm một chiều.<br /><em>Cho mọi ý tưởng.</em></span></h1>
+          <p class="hero-description"><span lang="en">A WebGL engine for websites that feel different.<br />Rendering, motion and interaction. All in Oxygen.<br />Built on three.js. Made to be yours.</span><span lang="vi">WebGL engine cho những website khác biệt.<br />Kết xuất, chuyển động và tương tác trong Oxygen.<br />Xây trên three.js. Sáng tạo theo cách của bạn.</span></p>
+          <div class="hero-actions"><a class="button" href="./docs/"><span lang="en">Start building</span><span lang="vi">Bắt đầu xây dựng</span><span aria-hidden="true">↗</span></a><a class="button button-outline" href="./examples/"><span lang="en">Explore examples</span><span lang="vi">Khám phá ví dụ</span><span aria-hidden="true">→</span></a></div>
+          <p class="hero-footnote"><span lang="en">TypeScript-native. Modular by design. Yours to shape.</span><span lang="vi">TypeScript nguyên bản. Thiết kế module. Tự do sáng tạo.</span></p>
+        </div>
+        <div class="hero-visual">
+          <div class="visual-topline"><span><span class="live-indicator" aria-hidden="true"></span><span lang="en">RENDERED WITH OXYGEN</span><span lang="vi">RENDER BẰNG OXYGEN</span></span><span>SCENE_001</span></div>
+          <div class="hero-scene" id="hero-scene" aria-label="Oxygen WebGL preview"><div id="hero-fallback" class="hero-fallback"><svg viewBox="0 0 400 400" fill="none" aria-hidden="true"><g stroke="#94e3c0" stroke-width="0.8"><ellipse cx="200" cy="200" rx="143" ry="143"/><ellipse cx="200" cy="200" rx="100" ry="143"/><ellipse cx="200" cy="200" rx="50" ry="143"/><ellipse cx="200" cy="200" rx="143" ry="100"/><ellipse cx="200" cy="200" rx="143" ry="50"/></g></svg><p><span lang="en">A sculptural wireframe, rendered in real time when WebGL 2 is available.</span><span lang="vi">Khối hình wireframe, render trực tiếp khi có WebGL 2.</span></p></div></div>
+          <div class="visual-bottomline"><span><span lang="en">MOVE YOUR POINTER TO EXPLORE</span><span lang="vi">DI CHUYỂN CON TRỎ ĐỂ KHÁM PHÁ</span></span><button id="hero-motion" type="button" aria-pressed="false"><span lang="en">Pause motion</span><span lang="vi">Dừng chuyển động</span><span aria-hidden="true">Ⅱ</span></button></div>
+        </div>
+      </section>
+      <div class="engine-strip"><span lang="en">A small toolkit.<br /><strong>A complete creative workflow.</strong></span><span lang="vi">Bộ công cụ gọn nhẹ.<br /><strong>Quy trình sáng tạo trọn vẹn.</strong></span><div><span>three.js</span><span>WebGL 2</span><span>TypeScript</span><span>GLSL</span><span>ESM</span></div></div>
+      <section class="site-section" id="capabilities" aria-labelledby="capabilities-title">
+        <p class="section-label"><span lang="en">01 / The engine</span><span lang="vi">01 / Engine</span></p>
+        <div class="section-heading"><h2 id="capabilities-title"><span lang="en">Less plumbing.<br />More possibility.</span><span lang="vi">Bớt phần lắp ghép.<br />Thêm không gian sáng tạo.</span></h2><p><span lang="en">Everything that usually sits between your idea and the canvas, brought together in one coherent toolkit.</span><span lang="vi">Những công cụ từ ý tưởng đến canvas, kết hợp trong một hệ thống nhất quán.</span></p></div>
+        <div class="feature-grid">
+          <a class="feature" href="./reference/#pipeline"><span class="feature-index">[01]</span><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="m20 4 16 9v18l-16 9L4 31V13L20 4Zm0 0v18m16-9-16 9-16-9m16 9v18" stroke="currentColor"/></svg><h3><span lang="en">A considered render pipeline.</span><span lang="vi">Pipeline render chỉn chu.</span></h3><p><span lang="en">GPU warm-up, HDR, post-processing and adaptive quality. Get your first frame right.</span><span lang="vi">GPU warm-up, HDR, hậu xử lý và chất lượng thích ứng. Chỉn chu từ khung hình đầu tiên.</span></p><span class="feature-bottom">createPipeline()<span aria-hidden="true">↗</span></span></a>
+          <a class="feature" href="./reference/#tweens"><span class="feature-index">[02]</span><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M4 32c15 0 9-24 24-24h8M5 8h5m20 24h5" stroke="currentColor"/><circle cx="5" cy="32" r="3" stroke="currentColor"/><circle cx="35" cy="8" r="3" stroke="currentColor"/></svg><h3><span lang="en">Motion that feels connected.</span><span lang="vi">Chuyển động liền mạch.</span></h3><p><span lang="en">One frame loop for tweens, DOM and scroll stories. With reduced motion built into the workflow.</span><span lang="vi">Một vòng lặp cho tween, DOM và scroll story. Tích hợp chính sách giảm chuyển động.</span></p><span class="feature-bottom">tween() · ScrollStory<span aria-hidden="true">↗</span></span></a>
+          <a class="feature" href="./reference/#particles"><span class="feature-index">[03]</span><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><g fill="currentColor"><circle cx="8" cy="9" r="2"/><circle cx="24" cy="6" r="1.5"/><circle cx="34" cy="17" r="2"/><circle cx="18" cy="18" r="2.5"/><circle cx="7" cy="30" r="1.5"/><circle cx="25" cy="32" r="2"/><circle cx="34" cy="35" r="1"/></g><path d="m8 9 10 9 16-1M18 18l7 14-18-2" stroke="currentColor" stroke-opacity=".4"/></svg><h3><span lang="en">Room to experiment.</span><span lang="vi">Không gian để thử nghiệm.</span></h3><p><span lang="en">GPU particles, physics, shaders and pointer input. Compose something that could only be yours.</span><span lang="vi">Hạt GPU, vật lý, shader và tương tác con trỏ. Kết hợp thành trải nghiệm của riêng bạn.</span></p><span class="feature-bottom">GPUParticles · PhysicsWorld<span aria-hidden="true">↗</span></span></a>
+        </div>
+      </section>
+      <section class="site-section" aria-labelledby="workflow-title">
+        <div class="workflow-grid"><div class="workflow-copy"><p class="section-label"><span lang="en">02 / From idea to canvas</span><span lang="vi">02 / Từ ý tưởng đến canvas</span></p><h2 id="workflow-title"><span lang="en">Your scene.<br />Your rules.</span><span lang="vi">Scene của bạn.<br />Theo cách của bạn.</span></h2><p><span lang="en">Keep the three.js you know. Oxygen handles the frame loop and rendering lifecycle, so you can focus on what happens on screen.</span><span lang="vi">Tiếp tục với three.js quen thuộc. Oxygen quản lý vòng lặp và vòng đời render, để bạn tập trung vào trải nghiệm trên màn hình.</span></p><ul class="workflow-points"><li><span lang="en">Plain TypeScript. No component framework required.</span><span lang="vi">TypeScript thuần. Không bắt buộc component framework.</span></li><li><span lang="en">Import what your project needs.</span><span lang="vi">Import đúng phần dự án cần.</span></li><li><span lang="en">Explicit ownership and cleanup.</span><span lang="vi">Quyền sở hữu và giải phóng tài nguyên rõ ràng.</span></li></ul><a class="text-link" href="./docs/"><span lang="en">Create your first scene</span><span lang="vi">Tạo scene đầu tiên</span><span aria-hidden="true">→</span></a></div>
+          <div class="site-code"><div class="site-code-toolbar"><span>first-scene.ts</span><button type="button" data-copy-target="home-code" aria-live="polite"><span data-copy-label>Copy</span><span aria-hidden="true">⧉</span></button></div><pre><code id="home-code"><span class="code-keyword">import</span> * <span class="code-keyword">as</span> THREE <span class="code-keyword">from</span> <span class="code-string">'three'</span>;
+<span class="code-keyword">import</span> {
+  createPipeline, onFrame,
+  setRenderFunction, startLoop,
+} <span class="code-keyword">from</span> <span class="code-string">'@tunn/oxygen'</span>;
+
+startLoop();
+<span class="code-keyword">const</span> host = document.getElementById(<span class="code-string">'scene'</span>);
+<span class="code-keyword">if</span> (!host) <span class="code-keyword">throw new</span> Error(<span class="code-string">'Scene host not found'</span>);
+<span class="code-keyword">const</span> pipeline = createPipeline(host);
+<span class="code-keyword">const</span> camera = <span class="code-keyword">new</span> THREE.PerspectiveCamera(45, 1, 0.1, 100);
+camera.position.z = 4;
+
+<span class="code-keyword">const</span> mesh = <span class="code-keyword">new</span> THREE.Mesh(
+  <span class="code-keyword">new</span> THREE.TorusKnotGeometry(),
+  <span class="code-keyword">new</span> THREE.MeshNormalMaterial(),
+);
+pipeline.scene.add(mesh);
+onFrame((_time, delta) =&gt; { mesh.rotation.y += delta * 0.001; });
+setRenderFunction(() =&gt; {
+  camera.aspect = pipeline.size.width / pipeline.size.height;
+  camera.updateProjectionMatrix();
+  pipeline.render(camera);
+});</code></pre></div></div>
+      </section>
+      <section class="site-section" aria-labelledby="explore-title"><p class="section-label"><span lang="en">03 / See what is possible</span><span lang="vi">03 / Khám phá khả năng</span></p><div class="section-heading"><h2 id="explore-title"><span lang="en">Built to be played with.</span><span lang="vi">Sẵn sàng để khám phá.</span></h2><a class="text-link" href="./examples/"><span lang="en">All examples</span><span lang="vi">Tất cả ví dụ</span><span aria-hidden="true">↗</span></a></div><div class="home-examples"><a class="preview-card" href="./particles/"><div class="preview-image"><img src="./previews/particles.webp" width="800" height="500" loading="lazy" alt="GPU particles following a curl-noise field" /><span class="preview-open" aria-hidden="true">↗</span></div><div class="preview-caption"><h3>GPU particles</h3><span>SIMULATION / INTERACTION</span></div></a><a class="preview-card" href="./post/"><div class="preview-image"><img src="./previews/post.webp" width="800" height="500" loading="lazy" alt="Emissive three-dimensional objects with bloom post-processing" /><span class="preview-open" aria-hidden="true">↗</span></div><div class="preview-caption"><h3>Post-processing</h3><span>RENDERING / HDR</span></div></a></div></section>
+      <section class="home-cta"><div><p class="section-label"><span lang="en">Your next idea starts here</span><span lang="vi">Ý tưởng tiếp theo bắt đầu từ đây</span></p><h2><span lang="en">Make something<br /><em>worth interacting with.</em></span><span lang="vi">Tạo nên trải nghiệm<br /><em>đáng để tương tác.</em></span></h2></div><div><a class="button" href="./docs/"><span lang="en">Start building with Oxygen</span><span lang="vi">Bắt đầu với Oxygen</span><span aria-hidden="true">↗</span></a><p><span lang="en">Private beta. Start with a local checkout.</span><span lang="vi">Private beta. Bắt đầu từ bản sao cục bộ.</span></p></div></section>
+    </main>
+    <!-- site:footer -->
+    <script type="module" src="./home.ts"></script>
+  </body>
+</html>

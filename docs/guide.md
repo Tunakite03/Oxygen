@@ -29,7 +29,7 @@ Only applications using the second entry need `@dimforge/rapier3d-compat@~0.21.0
 
 ## Mount, render and unmount
 
-`examples/embed/main.ts` is the complete lifecycle example. Create a pipeline in a positioned host with explicit dimensions and `sizeMode: 'container'` for embedded content. The default `viewport` mode preserves full-page scroll stories. `pipeline.size` exposes the current logical pixel dimensions; update camera aspect from it. Container mode uses `ResizeObserver` and remains at least 1 × 1 when hidden.
+`website/embed/main.ts` is the complete lifecycle example. Create a pipeline in a positioned host with explicit dimensions and `sizeMode: 'container'` for embedded content. The default `viewport` mode preserves full-page scroll stories. `pipeline.size` exposes the current logical pixel dimensions; update camera aspect from it. Container mode uses `ResizeObserver` and remains at least 1 × 1 when hidden.
 
 `createAccessiblePipeline(host, fallbackElement, options)` returns a nullable `pipeline` plus a typed `reason` when WebGL 2 cannot initialize. Supply useful semantic HTML yourself: scene meaning, equivalent navigation, and required controls. The adapter shows it when WebGL is unavailable or context is lost, and hides it after restoration. Other initialization errors propagate. The canvas is marked `aria-hidden`; put essential information in accessible HTML outside the canvas. The adapter restores the fallback's original hidden state when disposed.
 
@@ -85,7 +85,7 @@ An asset handle owns every scene in its glTF. Do not dispose a handle while anot
 
 ## API reference, demo and release
 
-`npm run build:docs` generates the API reference in `docs-dist/api`. `npm run build:examples` generates the demo in `examples-dist`. Serve each output over HTTP; opening HTML via `file:` does not support module/asset requests. The documentation preview workflow uploads both outputs as an artifact, without changing any deployed site. Host `examples-dist` at `/demo/` alongside `/api/` to match the API navigation link. `npm run dev` opens the source demo for development.
+`npm run build:docs` generates the API reference in `docs-dist/api`. `npm run build:examples` generates the demo in `examples-dist`. Serve each output over HTTP; opening HTML via `file:` does not support module/asset requests. The documentation preview workflow uploads both outputs as an artifact, without changing any deployed site. Host `examples-dist` at `/demo/` alongside `/api/` to match the API navigation link. `npm run dev` opens the website from `website/`, including the homepage, guides, API reference and live examples. `npm run build:website` emits the standalone site to `website/dist/`; `npm run preview:website` serves that build.
 
 CI checks Node 24 and 26: typecheck, unit/regression tests, engine/demo builds, generated API, isolated package consumption and real Chromium integration. Local verification is evidence only for the runtime/browser actually run; remote matrix jobs must pass after pushing.
 

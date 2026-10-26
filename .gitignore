@@ -1,6 +1,7 @@
 node_modules/
 dist/
 examples-dist/
+website/dist/
 *.log
 
 docs-dist/

@@ -1,0 +1,1180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>API reference · Oxygen</title>
+    <meta name="description" content="The Oxygen API reference: 19 engine areas, TypeScript examples and interactive demos." />
+    <!-- site:head -->
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body data-page="reference" data-title-en="API reference · Oxygen" data-title-vi="Tài liệu API · Oxygen">
+    <!-- site:header -->
+    <div class="mobile-toolbar">
+      <button id="menu-toggle" type="button" aria-expanded="false" aria-controls="reference-nav">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+        <span lang="en">Browse reference</span><span lang="vi">Mục lục API</span>
+      </button>
+      <span class="version">v0.3.0-beta.1</span>
+    </div>
+    <div class="layout">
+      <nav class="toc" id="reference-nav" aria-label="Contents">
+        <label class="search-field" for="reference-search">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>
+          <input id="reference-search" type="search" autocomplete="off" aria-label="Search reference" placeholder="Search reference…" aria-controls="reference-sections" />
+          <kbd aria-hidden="true">/</kbd>
+        </label>
+        <div class="toc-title"><span lang="en">API reference</span><span lang="vi">Tài liệu API</span><span class="version">v0.3</span></div>
+        <ol id="reference-sections">
+          <li class="nav-group"><span lang="en">Getting started</span><span lang="vi">Bắt đầu</span></li>
+          <li><a href="#overview" aria-current="location"><span lang="en">Overview</span><span lang="vi">Tổng quan</span></a></li>
+          <li><a href="#quick-start"><span lang="en">Quick start</span><span lang="vi">Bắt đầu nhanh</span></a></li>
+          <li class="nav-group"><span lang="en">Core</span><span lang="vi">Cốt lõi</span></li>
+          <li><a href="#loop"><span lang="en">Frame loop</span><span lang="vi">Vòng lặp khung hình</span></a></li>
+          <li><a href="#tweens"><span lang="en">Tweens and DOM</span><span lang="vi">Tween và DOM</span><span class="nav-demo" aria-hidden="true"></span></a></li>
+          <li><a href="#events"><span lang="en">Events and state</span><span lang="vi">Sự kiện và trạng thái</span><span class="nav-demo" aria-hidden="true"></span></a></li>
+          <li><a href="#input"><span lang="en">Pointer input</span><span lang="vi">Đầu vào con trỏ</span><span class="nav-demo" aria-hidden="true"></span></a></li>
+          <li class="nav-group"><span lang="en">Rendering</span><span lang="vi">Kết xuất</span></li>
+          <li><a href="#pipeline"><span lang="en">Render pipeline</span><span lang="vi">Pipeline render</span><span class="nav-demo" aria-hidden="true"></span></a></li>
+          <li><a href="#shaders"><span lang="en">Shaders and materials</span><span lang="vi">Shader và vật liệu</span></a></li>
+          <li><a href="#post"><span lang="en">Post-processing</span><span lang="vi">Hậu xử lý</span></a></li>
+          <li><a href="#particles"><span lang="en">GPU particles</span><span lang="vi">Hạt GPU</span></a></li>
+          <li class="nav-group"><span lang="en">Modules</span><span lang="vi">Mô-đun</span></li>
+          <li><a href="#physics"><span lang="en">Physics</span><span lang="vi">Vật lý</span></a></li>
+          <li><a href="#router"><span lang="en">Router</span><span lang="vi">Router</span></a></li>
+          <li><a href="#story"><span lang="en">Scroll and story</span><span lang="vi">Cuộn và story</span></a></li>
+          <li><a href="#assets"><span lang="en">Assets</span><span lang="vi">Tài nguyên</span></a></li>
+          <li><a href="#audio"><span lang="en">Audio</span><span lang="vi">Âm thanh</span></a></li>
+          <li><a href="#text"><span lang="en">Text</span><span lang="vi">Văn bản</span></a></li>
+          <li class="nav-group"><span lang="en">Utilities</span><span lang="vi">Tiện ích</span></li>
+          <li><a href="#quality"><span lang="en">Quality and motion</span><span lang="vi">Chất lượng và chuyển động</span></a></li>
+          <li><a href="#math"><span lang="en">Math and random</span><span lang="vi">Toán và ngẫu nhiên</span></a></li>
+          <li><a href="#errors"><span lang="en">Errors</span><span lang="vi">Lỗi</span></a></li>
+        </ol>
+        <p id="search-status" class="search-status" role="status" hidden></p>
+        <div class="toc-footer">
+          <span class="nav-demo" aria-hidden="true"></span><span lang="en">Includes a live demo</span><span lang="vi">Có demo trực tiếp</span>
+        </div>
+      </nav>
+
+      <main id="main-content" tabindex="-1">
+        <div class="breadcrumbs"><span lang="en">Documentation</span><span lang="vi">Tài liệu</span><span aria-hidden="true">/</span><span lang="en">API reference</span><span lang="vi">Tham chiếu API</span></div>
+        <header class="page-header">
+          <div class="eyebrow"><span lang="en">Build with Oxygen</span><span lang="vi">Xây dựng với Oxygen</span><span class="release-badge">v0.3.0-beta.1</span></div>
+          <h1><span lang="en">API reference</span><span lang="vi">Tài liệu API</span></h1>
+          <p class="lead">
+            <span lang="en">
+              <code>@tunn/oxygen</code> is a WebGL 2 engine for creative sites, built on three.js. Each section lists the
+              public exports of one area, shows how they fit together and, where it matters, runs a live demo against the
+              real engine. Deeper guides live in <code>docs/</code> in the repository.
+            </span>
+            <span lang="vi">
+              <code>@tunn/oxygen</code> là engine WebGL 2 cho các trang web sáng tạo, xây trên three.js. Mỗi mục liệt kê
+              export công khai của một khu vực, cho thấy các phần kết hợp với nhau và, khi cần, chạy demo trực tiếp trên
+              engine thật. Hướng dẫn chi tiết hơn nằm trong <code>docs/</code> của repository.
+            </span>
+          </p>
+          <div class="capabilities"><span>WebGL 2</span><span>TypeScript</span><span>three.js</span><span>ESM</span></div>
+          <div class="quick-links">
+            <a href="#quick-start"><span class="quick-link-icon" aria-hidden="true">&gt;_</span><span><strong><span lang="en">Your first scene</span><span lang="vi">Scene đầu tiên</span></strong><span class="quick-link-description"><span lang="en">Set up a scene and start rendering.</span><span lang="vi">Thiết lập scene và bắt đầu render.</span></span></span><span class="quick-link-arrow" aria-hidden="true">↗</span></a>
+            <a href="#tweens"><span class="quick-link-icon" aria-hidden="true">▷</span><span><strong><span lang="en">Try it live</span><span lang="vi">Trải nghiệm trực tiếp</span></strong><span class="quick-link-description"><span lang="en">Explore interactive engine demos.</span><span lang="vi">Khám phá các demo tương tác.</span></span></span><span class="quick-link-arrow" aria-hidden="true">↗</span></a>
+          </div>
+        </header>
+
+        <section id="overview">
+          <h2><span lang="en">Overview</span><span lang="vi">Tổng quan</span></h2>
+          <p>
+            <span lang="en">
+              The package is ESM only and ships JavaScript with declarations. Importing the root entry is safe in Node and
+              during SSR. Creating a renderer, starting the frame loop and constructing input or audio adapters need a
+              browser.
+            </span>
+            <span lang="vi">
+              Gói chỉ hỗ trợ ESM và đi kèm JavaScript cùng khai báo kiểu. Import root entry an toàn trong Node và khi SSR.
+              Tạo renderer, khởi động vòng lặp khung hình, hay tạo adapter input hoặc âm thanh đều cần trình duyệt.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Dependency</span><span lang="vi">Phụ thuộc</span></th>
+                <th><span lang="en">Version</span><span lang="vi">Phiên bản</span></th>
+                <th><span lang="en">Required</span><span lang="vi">Bắt buộc</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>three</code></td><td>~0.186.1</td><td><span lang="en">Yes</span><span lang="vi">Có</span></td></tr>
+              <tr><td><code>zod</code></td><td>^4.0.0</td><td><span lang="en">Yes</span><span lang="vi">Có</span></td></tr>
+              <tr>
+                <td><code>@dimforge/rapier3d-compat</code></td>
+                <td>~0.21.0</td>
+                <td><span lang="en">Only for <code>PhysicsWorld</code></span><span lang="vi">Chỉ cho <code>PhysicsWorld</code></span></td>
+              </tr>
+            </tbody>
+          </table>
+          <pre><code>npm install @tunn/oxygen three zod
+npm install @dimforge/rapier3d-compat   # only for PhysicsWorld</code></pre>
+          <p class="callout">
+            <span lang="en">
+              The package is not on npm yet. Depend on the repository pinned to a commit, as described in the README. Rigid
+              body physics is imported from <code>@tunn/oxygen/physics</code>; everything else comes from the root entry.
+            </span>
+            <span lang="vi">
+              Gói chưa có trên npm. Hãy phụ thuộc vào repository được ghim theo commit, như mô tả trong README. Vật lý rigid
+              body được import từ <code>@tunn/oxygen/physics</code>; mọi thứ còn lại lấy từ root entry.
+            </span>
+          </p>
+        </section>
+
+        <section id="quick-start">
+          <h2><span lang="en">Quick start</span><span lang="vi">Bắt đầu nhanh</span></h2>
+          <p>
+            <span lang="en">
+              A scene with post-processing and adaptive quality. <code>startLoop()</code> must run before the render
+              function does anything, and <code>warmUp()</code> compiles every program before the first frame.
+            </span>
+            <span lang="vi">
+              Một cảnh có hậu xử lý và chất lượng thích ứng. <code>startLoop()</code> phải chạy trước khi render function
+              làm bất cứ việc gì, và <code>warmUp()</code> biên dịch mọi program trước khung hình đầu tiên.
+            </span>
+          </p>
+          <pre><code>import * as THREE from 'three';
+import {
+  BloomPass, ColorGradePass, PostStack, QualityManager, createPipeline, detectGPU, onFrame, onResize,
+  setRenderFunction, stage, startLoop,
+} from '@tunn/oxygen';
+
+startLoop();
+const pipeline = createPipeline(document.querySelector&lt;HTMLElement&gt;('.stage')!, { hdr: true });
+const camera = new THREE.PerspectiveCamera(45, stage.width / stage.height, 0.1, 100);
+camera.position.z = 5;
+onResize(() => {
+  camera.aspect = stage.width / stage.height;
+  camera.updateProjectionMatrix();
+});
+
+const post = new PostStack(pipeline.renderer);
+post.add(new BloomPass({ threshold: 0.9 }));
+post.add(new ColorGradePass({ toneMapping: 'aces', outputSRGB: true }));
+pipeline.setPost(post);
+
+const quality = new QualityManager({
+  levels: [{ name: 'low', dpr: 1 }, { name: 'high', dpr: 2 }],
+  initial: { tier: detectGPU(pipeline.renderer.getContext()).tier },
+});
+quality.bindPipeline(pipeline);
+quality.start();
+
+const mesh = new THREE.Mesh(
+  new THREE.TorusKnotGeometry(1, 0.3, 200, 24),
+  new THREE.MeshStandardMaterial({ emissive: 0x3d7bff, emissiveIntensity: 4 }),
+);
+pipeline.scene.add(mesh, new THREE.HemisphereLight(0xffffff, 0x222222, 1));
+onFrame((_time, delta) => (mesh.rotation.y += delta * 0.0005));
+await pipeline.warmUp(camera);
+setRenderFunction(() => pipeline.render(camera));</code></pre>
+        </section>
+
+        <section id="loop">
+          <h2><span lang="en">Frame loop</span><span lang="vi">Vòng lặp khung hình</span></h2>
+          <p>
+            <span lang="en">
+              One RAF loop drives everything. Each frame runs tweens first, then the four phases in order, then the render
+              function, then <code>postRender</code>. <code>frame.delta</code> is in milliseconds and capped at 200.
+            </span>
+            <span lang="vi">
+              Một vòng RAF điều khiển mọi thứ. Mỗi khung hình chạy tween trước, rồi bốn phase theo thứ tự, sau đó render
+              function, cuối cùng là <code>postRender</code>. <code>frame.delta</code> tính bằng mili giây và bị giới hạn
+              tối đa 200.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>startLoop(): void</code></td>
+                <td><span lang="en">Starts the loop and installs the viewport and pointer listeners. Idempotent.</span><span lang="vi">Khởi động vòng lặp và cài listener cho viewport và con trỏ. Gọi nhiều lần vẫn an toàn.</span></td>
+              </tr>
+              <tr>
+                <td><code>stopLoop(): void</code></td>
+                <td><span lang="en">Cancels the next frame. Subscriptions stay registered, so <code>startLoop()</code> resumes them.</span><span lang="vi">Hủy khung hình kế tiếp. Các subscription vẫn được giữ, nên <code>startLoop()</code> tiếp tục chúng.</span></td>
+              </tr>
+              <tr>
+                <td><code>onFrame(cb, phase?): () =&gt; void</code></td>
+                <td><span lang="en"><code>cb(time, delta)</code> runs every frame. <code>phase</code> is <code>'loop'</code> (default), <code>'afterLoops'</code>, <code>'beforeRender'</code> or <code>'postRender'</code>.</span><span lang="vi"><code>cb(time, delta)</code> chạy mỗi khung hình. <code>phase</code> là <code>'loop'</code> (mặc định), <code>'afterLoops'</code>, <code>'beforeRender'</code> hoặc <code>'postRender'</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>setRenderFunction(fn): () =&gt; void</code></td>
+                <td><span lang="en">Installs the one render callback. The returned cleanup clears it only if it is still installed.</span><span lang="vi">Cài đặt đúng một render callback. Cleanup trả về chỉ xóa nó khi nó vẫn đang được cài.</span></td>
+              </tr>
+              <tr>
+                <td><code>frame</code></td>
+                <td><span lang="en"><code>{ time, delta, count, hzMultiplier }</code>, updated each frame.</span><span lang="vi"><code>{ time, delta, count, hzMultiplier }</code>, cập nhật mỗi khung hình.</span></td>
+              </tr>
+              <tr>
+                <td><code>Component</code></td>
+                <td><span lang="en">A <code>THREE.Group</code> whose <code>startRender</code> loops run only while it and its ancestors are visible.</span><span lang="vi">Một <code>THREE.Group</code> mà các vòng <code>startRender</code> chỉ chạy khi nó và các cha của nó đang hiển thị.</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="tweens">
+          <h2><span lang="en">Tweens and DOM</span><span lang="vi">Tween và DOM</span></h2>
+          <p>
+            <span lang="en">
+              <code>tween</code> animates numeric fields of any object. Eases are named: any Penner ease such as
+              <code>easeOutCubic</code> or <code>easeInOutQuad</code>, <code>linear</code>, or a custom
+              <code>cubic-bezier</code> registered with <code>addCustomEase</code>. A new tween on the same object replaces
+              the earlier ones unless it sets <code>multiTween</code>. Decorative tweens finish at once under reduced motion;
+              pass <code>'essential'</code> as the last argument when the motion carries meaning.
+            </span>
+            <span lang="vi">
+              <code>tween</code> hoạt hóa các trường số của bất kỳ object nào. Easing được đặt tên: mọi ease Penner như
+              <code>easeOutCubic</code> hoặc <code>easeInOutQuad</code>, <code>linear</code>, hoặc một <code>cubic-bezier</code>
+              tùy chỉnh đăng ký bằng <code>addCustomEase</code>. Tween mới trên cùng object sẽ thay thế các tween trước đó,
+              trừ khi đặt <code>multiTween</code>. Tween trang trí kết thúc ngay khi bật giảm chuyển động; truyền
+              <code>'essential'</code> làm tham số cuối khi chuyển động mang ý nghĩa.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>tween(object, props, time, ease?, delay?, motion?)</code></td>
+                <td><span lang="en">Returns a <code>Tween</code>. <code>time</code> and <code>delay</code> are in ms.</span><span lang="vi">Trả về một <code>Tween</code>. <code>time</code> và <code>delay</code> tính bằng ms.</span></td>
+              </tr>
+              <tr>
+                <td><code>Tween</code></td>
+                <td><span lang="en">Chainable: <code>onUpdate(k =&gt; …)</code>, <code>onComplete(fn)</code>. Methods: <code>promise()</code>, <code>pause()</code>, <code>resume()</code>, <code>stop()</code>.</span><span lang="vi">Có thể nối chuỗi: <code>onUpdate(k =&gt; …)</code>, <code>onComplete(fn)</code>. Phương thức: <code>promise()</code>, <code>pause()</code>, <code>resume()</code>, <code>stop()</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>tweenUniform(uniforms, name, value, time, ease?, delay?)</code></td>
+                <td><span lang="en">Tweens a float uniform in <code>uniforms[name].value</code>.</span><span lang="vi">Tween một uniform float trong <code>uniforms[name].value</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>clearTween(object)</code></td>
+                <td><span lang="en">Stops every tween on the object.</span><span lang="vi">Dừng mọi tween trên object.</span></td>
+              </tr>
+              <tr>
+                <td><code>addCustomEase(name, 'cubic-bezier(x1, y1, x2, y2)')</code></td>
+                <td><span lang="en">Registers a named ease. Registering an existing name is ignored.</span><span lang="vi">Đăng ký một ease có tên. Đăng ký trùng tên sẽ bị bỏ qua.</span></td>
+              </tr>
+              <tr>
+                <td><code>delay(ms)</code>, <code>defer()</code></td>
+                <td><span lang="en">Promises that resolve after a timeout or on the next animation frame.</span><span lang="vi">Promise resolve sau một khoảng timeout hoặc ở khung hình animation kế tiếp.</span></td>
+              </tr>
+              <tr>
+                <td><code>dom(el).set(props)</code></td>
+                <td><span lang="en">Applies <code>x</code>, <code>y</code>, <code>scale</code>, <code>scaleX</code> and <code>opacity</code> immediately and cancels running DOM tweens on that element.</span><span lang="vi">Áp dụng <code>x</code>, <code>y</code>, <code>scale</code>, <code>scaleX</code> và <code>opacity</code> ngay lập tức, đồng thời hủy các DOM tween đang chạy trên phần tử đó.</span></td>
+              </tr>
+              <tr>
+                <td><code>dom(el).tween(props, time, ease, delay?)</code></td>
+                <td><span lang="en">Tweens the same properties and returns a promise. <code>clear: true</code> removes the inline transform at the end. <code>x</code> and <code>y</code> take numbers (px) or strings such as <code>'50%'</code>, <code>'10vw'</code>.</span><span lang="vi">Tween cùng các thuộc tính và trả về promise. <code>clear: true</code> xóa inline transform khi kết thúc. <code>x</code> và <code>y</code> nhận số (px) hoặc chuỗi như <code>'50%'</code>, <code>'10vw'</code>.</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="demo" data-demo="tweens">
+            <h3><span lang="en">Live demo: numeric and DOM tweens</span><span lang="vi">Demo trực tiếp: tween số và tween DOM</span></h3>
+            <div class="demo-controls">
+              <button id="tween-toggle" type="button"><span lang="en">Move card and fill bar</span><span lang="vi">Di chuyển thẻ và lấp đầy thanh</span></button>
+              <label>
+                <span lang="en">Motion</span><span lang="vi">Chuyển động</span>
+                <select id="motion">
+                  <option value="system">System</option>
+                  <option value="reduce">Reduce</option>
+                  <option value="full">Full</option>
+                </select>
+              </label>
+            </div>
+            <div class="track" id="tween-track">
+              <div class="card" id="tween-card"></div>
+            </div>
+            <div class="meter"><div class="bar" id="tween-bar"></div></div>
+            <p class="note">
+              <span lang="en">
+                The card uses <code>dom(el).tween</code>; the bar uses a <code>tween</code> on a plain object and reads it in
+                <code>onUpdate</code>. With <em>Reduce</em>, or with <em>System</em> when the OS asks for less motion, decorative
+                tweens jump straight to their end values.
+              </span>
+              <span lang="vi">
+                Thẻ dùng <code>dom(el).tween</code>; thanh dùng một <code>tween</code> trên object thường và đọc giá trị trong
+                <code>onUpdate</code>. Với <em>Giảm</em>, hoặc với <em>Hệ thống</em> khi hệ điều hành yêu cầu giảm chuyển động,
+                tween trang trí sẽ nhảy thẳng đến giá trị cuối.
+              </span>
+            </p>
+            <pre><code>const meter = { value: 0 };
+tween(meter, { value: 1 }, 900, 'easeInOutCubic').onUpdate(() => {
+  bar.style.transform = `scaleX(${meter.value})`;
+});
+void dom(card).tween({ x: 160, opacity: 0.6 }, 600, 'easeOutBack');</code></pre>
+          </div>
+        </section>
+
+        <section id="events">
+          <h2><span lang="en">Events and state</span><span lang="vi">Sự kiện và trạng thái</span></h2>
+          <p>
+            <span lang="en">
+              One process-wide event bus and a key/value store. <code>setState</code> emits <code>state:&lt;name&gt;</code> only
+              when the value changes, so <code>bindState</code> can drive the UI from state without polling.
+            </span>
+            <span lang="vi">
+              Một event bus và kho key/value dùng chung cho cả tiến trình. <code>setState</code> chỉ phát
+              <code>state:&lt;name&gt;</code> khi giá trị thay đổi, nên <code>bindState</code> có thể điều khiển UI từ state mà
+              không cần polling.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>emit(name, value?)</code></td>
+                <td><span lang="en">Calls the listeners of <code>name</code> synchronously.</span><span lang="vi">Gọi các listener của <code>name</code> một cách đồng bộ.</span></td>
+              </tr>
+              <tr>
+                <td><code>listen(name, cb)</code></td>
+                <td><span lang="en">Subscribes. Returns the unsubscribe function.</span><span lang="vi">Đăng ký. Trả về hàm hủy đăng ký.</span></td>
+              </tr>
+              <tr>
+                <td><code>setState(name, value)</code></td>
+                <td><span lang="en">Stores the value and notifies <code>bindState</code> listeners when it differs from the previous value.</span><span lang="vi">Lưu giá trị và thông báo cho các listener <code>bindState</code> khi giá trị khác với giá trị trước.</span></td>
+              </tr>
+              <tr>
+                <td><code>getState(name)</code></td>
+                <td><span lang="en">The stored value, or <code>undefined</code>.</span><span lang="vi">Giá trị đã lưu, hoặc <code>undefined</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>requireState(name)</code></td>
+                <td><span lang="en">The stored value; throws if it was never set.</span><span lang="vi">Giá trị đã lưu; ném lỗi nếu chưa từng được đặt.</span></td>
+              </tr>
+              <tr>
+                <td><code>bindState(name, cb)</code></td>
+                <td><span lang="en">Calls <code>cb</code> now if a value exists, then on every change. Returns the unsubscribe function.</span><span lang="vi">Gọi <code>cb</code> ngay nếu đã có giá trị, rồi mỗi khi giá trị thay đổi. Trả về hàm hủy đăng ký.</span></td>
+              </tr>
+              <tr>
+                <td><code>whenState(name)</code></td>
+                <td><span lang="en">Resolves with the first value, immediately if one is already stored.</span><span lang="vi">Resolve với giá trị đầu tiên, ngay lập tức nếu đã có giá trị được lưu.</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="demo" data-demo="events">
+            <h3><span lang="en">Live demo: bus and bound state</span><span lang="vi">Demo trực tiếp: bus và state được bind</span></h3>
+            <div class="demo-controls">
+              <button id="ping" type="button"><span lang="en">Emit Demo/ping</span><span lang="vi">Phát Demo/ping</span></button>
+              <span><span lang="en">Pings received:</span><span lang="vi">Số ping đã nhận:</span> <strong id="ping-count">0</strong></span>
+            </div>
+            <label class="field">
+              <span lang="en">Gain</span><span lang="vi">Độ lợi</span>
+              <input id="gain" type="range" min="0" max="1" step="0.01" value="0.5" />
+              <output id="gain-value">0.50</output>
+            </label>
+            <pre><code>listen&lt;number&gt;('Demo/ping', count =&gt; { pingCount.textContent = String(count); });
+emit('Demo/ping', pings);
+
+setState('demo.gain', 0.5);
+bindState&lt;number&gt;('demo.gain', value =&gt; { gainValue.textContent = value.toFixed(2); });
+gain.addEventListener('input', () =&gt; setState('demo.gain', Number(gain.value)));</code></pre>
+          </div>
+        </section>
+
+        <section id="input">
+          <h2><span lang="en">Pointer input</span><span lang="vi">Đầu vào con trỏ</span></h2>
+          <p>
+            <span lang="en">
+              <code>PointerTracker</code> follows one element's primary pointer. It reports CSS pixels, normalised device
+              coordinates, a smoothed position that eases each frame, velocity, and tap and drag gestures. Call
+              <code>update(delta)</code> once per frame; <code>destroy()</code> removes its listeners.
+            </span>
+            <span lang="vi">
+              <code>PointerTracker</code> theo dõi con trỏ chính của một phần tử. Nó báo cáo tọa độ CSS px, tọa độ chuẩn hóa
+              (NDC), vị trí đã làm mượt (ease mỗi khung hình), vận tốc, và các cử chỉ chạm và kéo. Gọi
+              <code>update(delta)</code> mỗi khung hình; <code>destroy()</code> gỡ listener.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>new PointerTracker(element?, options?)</code></td>
+                <td><span lang="en">Defaults to <code>window</code>. Options: <code>velocitySmoothing</code> (0.05 s), <code>follow</code> (0.15), <code>dragThreshold</code> (6 px), <code>tapMaxMs</code> (300).</span><span lang="vi">Mặc định là <code>window</code>. Tùy chọn: <code>velocitySmoothing</code> (0.05 s), <code>follow</code> (0.15), <code>dragThreshold</code> (6 px), <code>tapMaxMs</code> (300).</span></td>
+              </tr>
+              <tr>
+                <td><code>.on(event, listener)</code></td>
+                <td><span lang="en"><code>'tap'</code>, <code>'dragStart'</code>, <code>'drag'</code> or <code>'dragEnd'</code>. Returns the unsubscribe function.</span><span lang="vi"><code>'tap'</code>, <code>'dragStart'</code>, <code>'drag'</code> hoặc <code>'dragEnd'</code>. Trả về hàm hủy đăng ký.</span></td>
+              </tr>
+              <tr>
+                <td><code>.position</code>, <code>.ndc</code>, <code>.uv</code></td>
+                <td><span lang="en">CSS px from the top-left, −1…1 with y up, and 0…1 with y up.</span><span lang="vi">CSS px tính từ góc trên bên trái, −1…1 với y hướng lên, và 0…1 với y hướng lên.</span></td>
+              </tr>
+              <tr>
+                <td><code>.smoothed</code>, <code>.velocity</code>, <code>.speed</code></td>
+                <td><span lang="en">Eased position, smoothed px/s, and the magnitude of the velocity.</span><span lang="vi">Vị trí đã ease, vận tốc đã làm mượt tính bằng px/s, và độ lớn của vận tốc.</span></td>
+              </tr>
+              <tr>
+                <td><code>.down</code>, <code>.inside</code>, <code>.drag</code></td>
+                <td><span lang="en">Pressed, hovered and drag state (<code>active</code>, <code>start</code>, <code>delta</code>).</span><span lang="vi">Trạng thái nhấn, hover và kéo (<code>active</code>, <code>start</code>, <code>delta</code>).</span></td>
+              </tr>
+              <tr>
+                <td><code>update(deltaMs)</code>, <code>destroy()</code></td>
+                <td><span lang="en">Per-frame easing; removes listeners.</span><span lang="vi">Ease theo khung hình; gỡ listener.</span></td>
+              </tr>
+              <tr>
+                <td><code>pointerToPlane(ndc, camera, plane, out?)</code></td>
+                <td><span lang="en">The point where the ray through <code>ndc</code> meets the plane, or <code>null</code>.</span><span lang="vi">Điểm mà tia đi qua <code>ndc</code> gặp mặt phẳng, hoặc <code>null</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>Interaction3D</code>, <code>interaction3d()</code></td>
+                <td><span lang="en">Raycasts the pointer against meshes and reports hits.</span><span lang="vi">Raycast con trỏ lên các mesh và báo cáo các lần trúng.</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="demo" data-demo="pointer">
+            <h3><span lang="en">Live demo: pointer tracker</span><span lang="vi">Demo trực tiếp: pointer tracker</span></h3>
+            <div class="pad" id="pointer-pad">
+              <div class="dot" id="pointer-dot"></div>
+            </div>
+            <p class="readout" id="pointer-readout"><span lang="en">Move or drag over the pad.</span><span lang="vi">Di chuyển hoặc kéo trên vùng này.</span></p>
+            <pre><code>const tracker = new PointerTracker(pad);
+tracker.on('tap', () =&gt; { taps += 1; });
+onFrame((_time, delta) =&gt; {
+  tracker.update(delta);
+  dot.style.transform = `translate(${tracker.smoothed.x}px, ${tracker.smoothed.y}px)`;
+});</code></pre>
+          </div>
+        </section>
+
+        <section id="pipeline">
+          <h2><span lang="en">Render pipeline</span><span lang="vi">Pipeline render</span></h2>
+          <p>
+            <span lang="en">
+              <code>createPipeline</code> owns a WebGL 2 canvas, an MSAA scene buffer (half-float with <code>hdr</code>), a
+              composite or post stack, and pixel-space overlays. A pipeline in <code>container</code> mode sizes to a host
+              element, which suits embedded scenes. <code>dispose()</code> releases everything the pipeline owns and is
+              idempotent; rendering after it throws <code>DisposedError</code>.
+            </span>
+            <span lang="vi">
+              <code>createPipeline</code> sở hữu một canvas WebGL 2, một scene buffer MSAA (half-float khi có
+              <code>hdr</code>), một composite hoặc post stack, và các overlay theo pixel. Pipeline ở chế độ
+              <code>container</code> sẽ co theo phần tử host, phù hợp với cảnh nhúng. <code>dispose()</code> giải phóng mọi thứ
+              pipeline sở hữu và có tính idempotent; render sau đó sẽ ném <code>DisposedError</code>.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>createPipeline(parent, options?)</code></td>
+                <td><span lang="en">Options: <code>sizeMode</code> (<code>'viewport'</code> default, or <code>'container'</code>), <code>clearColor</code>, <code>samples</code> (default 4), <code>hdr</code> (default false), <code>flipMirroredWinding</code> (default true).</span><span lang="vi">Tùy chọn: <code>sizeMode</code> (<code>'viewport'</code> mặc định, hoặc <code>'container'</code>), <code>clearColor</code>, <code>samples</code> (mặc định 4), <code>hdr</code> (mặc định false), <code>flipMirroredWinding</code> (mặc định true).</span></td>
+              </tr>
+              <tr>
+                <td><code>pipeline.scene</code>, <code>uiScene</code>, <code>uiCamera</code>, <code>beforePassesScene</code></td>
+                <td><span lang="en">Scene graphs. <code>uiScene</code> with <code>uiCamera</code> is the overlay pass; <code>beforePassesScene</code> is a pixel-space overlay drawn into the scene buffer before the composite.</span><span lang="vi">Scene graph. <code>uiScene</code> cùng <code>uiCamera</code> là pass overlay; <code>beforePassesScene</code> là overlay theo pixel được vẽ vào scene buffer trước composite.</span></td>
+              </tr>
+              <tr>
+                <td><code>pipeline.size</code>, <code>dpr</code>, <code>status</code></td>
+                <td><span lang="en">Logical size, current pixel ratio, and <code>'ready' | 'lost' | 'disposed'</code>.</span><span lang="vi">Kích thước logic, tỷ lệ pixel hiện tại, và <code>'ready' | 'lost' | 'disposed'</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>render(camera)</code></td>
+                <td><span lang="en">Draws one frame.</span><span lang="vi">Vẽ một khung hình.</span></td>
+              </tr>
+              <tr>
+                <td><code>setPost(stack | null)</code>, <code>setComposite(material)</code></td>
+                <td><span lang="en">Replaces the final pass. The caller owns the stack; detach it before disposing it.</span><span lang="vi">Thay pass cuối cùng. Caller sở hữu stack; hãy gỡ nó ra trước khi dispose.</span></td>
+              </tr>
+              <tr>
+                <td><code>setPixelRatio(dpr)</code></td>
+                <td><span lang="en">Resizes the canvas, scene buffer and post stack. Used by adaptive quality.</span><span lang="vi">Thay đổi kích thước canvas, scene buffer và post stack. Chất lượng thích ứng dùng hàm này.</span></td>
+              </tr>
+              <tr>
+                <td><code>addPreRender(fn)</code></td>
+                <td><span lang="en">Runs off-screen work before the main pass each frame.</span><span lang="vi">Chạy công việc off-screen trước pass chính mỗi khung hình.</span></td>
+              </tr>
+              <tr>
+                <td><code>warmUp(camera)</code></td>
+                <td><span lang="en">Compiles every program and uploads every texture and geometry, including hidden objects. Run it while the loader is up.</span><span lang="vi">Biên dịch mọi program và upload mọi texture và geometry, kể cả object đang ẩn. Chạy khi loader còn hiển thị.</span></td>
+              </tr>
+              <tr>
+                <td><code>onContextChange(listener)</code></td>
+                <td><span lang="en">Reports context loss and restoration. GPU-only simulation state may need reseeding.</span><span lang="vi">Báo cáo khi mất và khôi phục context. Trạng thái mô phỏng chỉ có trên GPU có thể cần khởi tạo lại.</span></td>
+              </tr>
+              <tr>
+                <td><code>registerOffscreenPass(object)</code></td>
+                <td><span lang="en">Includes a full-screen pass that renders outside the scenes in <code>warmUp</code>.</span><span lang="vi">Đưa một pass toàn màn hình render ngoài các scene vào <code>warmUp</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>createAccessiblePipeline(host, fallback, options?)</code></td>
+                <td><span lang="en">Returns <code>{ pipeline, reason, dispose }</code>. Shows <code>fallback</code> when WebGL 2 is unavailable or lost, and hides the canvas from assistive tech.</span><span lang="vi">Trả về <code>{ pipeline, reason, dispose }</code>. Hiện <code>fallback</code> khi WebGL 2 không khả dụng hoặc bị mất, và ẩn canvas khỏi công nghệ hỗ trợ.</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="demo" data-demo="pipeline">
+            <h3><span lang="en">Live demo: embedded pipeline with teardown</span><span lang="vi">Demo trực tiếp: pipeline nhúng và giải phóng tài nguyên</span></h3>
+            <div class="demo-controls">
+              <button id="mount" type="button"><span lang="en">Mount</span><span lang="vi">Gắn</span></button>
+              <button id="unmount" type="button"><span lang="en">Unmount</span><span lang="vi">Gỡ</span></button>
+              <span class="status" id="scene-status" role="status"></span>
+            </div>
+            <div class="scene-host" id="scene-host"></div>
+            <pre><code>const pipeline = createPipeline(host, { sizeMode: 'container', clearColor: '#14161c' });
+void pipeline.warmUp(camera);
+const offRender = setRenderFunction(() => pipeline.render(camera));
+
+// On unmount, release every subscription and the pipeline itself:
+offRender();
+pipeline.dispose();</code></pre>
+          </div>
+        </section>
+
+        <section id="shaders">
+          <h2><span lang="en">Shaders and materials</span><span lang="vi">Shader và vật liệu</span></h2>
+          <p>
+            <span lang="en">
+              Shaders live in one bundle file. A plain entry is a chunk that other sources pull in with
+              <code>#require(name)</code>. Entries with <code>#!SHADER: Name.vs</code> and <code>Name.fs</code> become
+              shader programs. <code>#test condition</code> blocks are kept or dropped by an evaluator you supply.
+              <code>createShaderMaterial</code> builds a GLSL ES 3.00 <code>RawShaderMaterial</code> and provides
+              <code>time</code>, <code>timeScale</code>, <code>resolution</code>, <code>cameraQuaternion</code> and
+              <code>normalMatrixWorld</code>.
+            </span>
+            <span lang="vi">
+              Shader nằm trong một file bundle. Entry thường là một chunk mà các source khác kéo vào bằng
+              <code>#require(name)</code>. Entry có <code>#!SHADER: Name.vs</code> và <code>Name.fs</code> trở thành shader
+              program. Khối <code>#test condition</code> được giữ hoặc bỏ bởi một evaluator do bạn cung cấp.
+              <code>createShaderMaterial</code> tạo một <code>RawShaderMaterial</code> GLSL ES 3.00 và cung cấp
+              <code>time</code>, <code>timeScale</code>, <code>resolution</code>, <code>cameraQuaternion</code> và
+              <code>normalMatrixWorld</code>.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>loadShaderLibrary(url)</code></td>
+                <td><span lang="en">Fetches and registers a bundle.</span><span lang="vi">Tải và đăng ký một bundle.</span></td>
+              </tr>
+              <tr>
+                <td><code>registerShaderBundle(text)</code>, <code>registerShaderSource(name, code)</code></td>
+                <td><span lang="en">Registers bundle text or one named chunk without fetching.</span><span lang="vi">Đăng ký nội dung bundle hoặc một chunk có tên mà không cần tải.</span></td>
+              </tr>
+              <tr>
+                <td><code>addShaderTests(evaluator)</code></td>
+                <td><span lang="en">Resolves <code>#test</code> conditions to true or false. Return <code>undefined</code> for a condition you do not handle; an unknown condition makes loading throw.</span><span lang="vi">Giải quyết điều kiện <code>#test</code> thành true hoặc false. Trả về <code>undefined</code> cho điều kiện bạn không xử lý; điều kiện không xác định sẽ làm quá trình tải bị lỗi.</span></td>
+              </tr>
+              <tr>
+                <td><code>createShaderMaterial(name, uniforms, options?)</code></td>
+                <td><span lang="en">Builds the material. Transparent materials use straight alpha; opaque ones disable blending.</span><span lang="vi">Tạo vật liệu. Vật liệu trong suốt dùng alpha thẳng; vật liệu opaque tắt blending.</span></td>
+              </tr>
+              <tr>
+                <td><code>hasShader(name)</code>, <code>getShaderSource(name)</code></td>
+                <td><span lang="en">Lookup. For an unknown name, <code>hasShader</code> returns false and <code>getShaderSource</code> throws <code>ShaderNotFoundError</code>.</span><span lang="vi">Tra cứu. Với tên không tồn tại, <code>hasShader</code> trả về false còn <code>getShaderSource</code> ném <code>ShaderNotFoundError</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>globalUniforms</code>, <code>attachWorldNormalMatrix(mesh)</code></td>
+                <td><span lang="en">Shared uniforms and a helper that supplies <code>normalMatrixWorld</code> to a mesh.</span><span lang="vi">Các uniform dùng chung và một hàm hỗ trợ cấp <code>normalMatrixWorld</code> cho mesh.</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <pre><code>addShaderTests((condition, { isMobile }) =&gt; (condition === 'quality.high' ? !isMobile : undefined));
+await loadShaderLibrary('shaders/library.glsl');
+const material = createShaderMaterial('Gradient', { uAlpha: { value: 0 } }, { transparent: true });</code></pre>
+        </section>
+
+        <section id="post">
+          <h2><span lang="en">Post-processing</span><span lang="vi">Hậu xử lý</span></h2>
+          <p>
+            <span lang="en">
+              <code>PostStack</code> chains passes over the scene buffer. Each pass is a <code>PostPass</code> with its own
+              options and an <code>enabled</code> flag. The stack is attached with <code>pipeline.setPost</code>.
+            </span>
+            <span lang="vi">
+              <code>PostStack</code> xếp chuỗi các pass lên scene buffer. Mỗi pass là một <code>PostPass</code> với tùy chọn
+              riêng và cờ <code>enabled</code>. Stack được gắn bằng <code>pipeline.setPost</code>.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>PostStack(renderer)</code></td>
+                <td><span lang="en"><code>add(pass)</code> appends a pass and returns it.</span><span lang="vi"><code>add(pass)</code> thêm một pass và trả về chính pass đó.</span></td>
+              </tr>
+              <tr>
+                <td><code>BloomPass</code></td>
+                <td><span lang="en">Threshold, knee, intensity, radius and mip levels.</span><span lang="vi">Threshold, knee, intensity, radius và số mức mip.</span></td>
+              </tr>
+              <tr>
+                <td><code>ColorGradePass</code></td>
+                <td><span lang="en"><code>toneMapping</code> (<code>'none'</code>, <code>'reinhard'</code>, <code>'aces'</code>), <code>outputSRGB</code>, <code>exposure</code>, <code>contrast</code>, <code>saturation</code>.</span><span lang="vi"><code>toneMapping</code> (<code>'none'</code>, <code>'reinhard'</code>, <code>'aces'</code>), <code>outputSRGB</code>, <code>exposure</code>, <code>contrast</code>, <code>saturation</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>LensPass</code></td>
+                <td><span lang="en"><code>chromaticAberration</code>, <code>vignette</code>, <code>grain</code>.</span><span lang="vi"><code>chromaticAberration</code>, <code>vignette</code>, <code>grain</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>FXAAPass</code>, <code>ShaderPass</code>, <code>TransitionPass</code></td>
+                <td><span lang="en">Anti-aliasing, a custom shader pass, and screen transitions.</span><span lang="vi">Khử răng cưa, một pass shader tùy chỉnh, và screen transition.</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <span lang="en">
+              The full option reference is in <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/post.md">docs/post.md</a>. For a running example, open the
+              <a href="../post/">post-processing demo</a>.
+            </span>
+            <span lang="vi">
+              Tham chiếu đầy đủ các tùy chọn nằm trong <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/post.md">docs/post.md</a>. Để xem một ví dụ đang
+              chạy, mở <a href="../post/">demo hậu xử lý</a>.
+            </span>
+          </p>
+        </section>
+
+        <section id="particles">
+          <h2><span lang="en">GPU particles</span><span lang="vi">Hạt GPU</span></h2>
+          <p>
+            <span lang="en">
+              <code>GPUParticles</code> advects particles on the GPU with curl noise and attractors. The particles demo runs
+              up to 262k particles. <code>GPUSimulation</code> is the lower-level simulation it is built on, and
+              <code>NOISE_GLSL</code> exports the noise chunk for custom shaders.
+            </span>
+            <span lang="vi">
+              <code>GPUParticles</code> mô phỏng hạt trên GPU với curl noise và attractor. Demo hạt chạy tới 262k hạt.
+              <code>GPUSimulation</code> là lõi mô phỏng cấp thấp hơn mà nó xây dựng trên, và <code>NOISE_GLSL</code> export
+              đoạn noise GLSL để dùng trong shader tùy chỉnh.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>GPUParticles</code></td>
+                <td><span lang="en">Particle system; options cover count, emitter shape, curl and attractors.</span><span lang="vi">Hệ thống hạt; tùy chọn bao gồm số lượng, hình dạng emitter, curl và attractor.</span></td>
+              </tr>
+              <tr>
+                <td><code>GPUSimulation</code>, <code>NOISE_GLSL</code></td>
+                <td><span lang="en">Simulation core and the shared noise GLSL.</span><span lang="vi">Lõi mô phỏng và GLSL noise dùng chung.</span></td>
+              </tr>
+              <tr>
+                <td><code>particleTextureSize(count)</code>, <code>seedParticles</code>, <code>sampleEmitter</code>, <code>randomDirection</code></td>
+                <td><span lang="en">Texture sizing and seeding helpers.</span><span lang="vi">Các hàm hỗ trợ tính kích thước texture, seed và lấy mẫu emitter.</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <span lang="en">Reference: <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/particles.md">docs/particles.md</a>. Live example: <a href="../particles/">GPU particles demo</a>.</span>
+            <span lang="vi">Tài liệu tham chiếu: <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/particles.md">docs/particles.md</a>. Ví dụ trực tiếp: <a href="../particles/">demo hạt GPU</a>.</span>
+          </p>
+        </section>
+
+        <section id="physics">
+          <h2><span lang="en">Physics</span><span lang="vi">Vật lý</span></h2>
+          <p>
+            <span lang="en">
+              Closed-form springs and Verlet simulation are in the root entry. Rigid bodies are in the subpath, so applications
+              that do not need them never load Rapier.
+            </span>
+            <span lang="vi">
+              Lò xo dạng closed-form và mô phỏng Verlet nằm trong root entry. Rigid body nằm trong subpath, nên ứng dụng không
+              cần chúng sẽ không bao giờ tải Rapier.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Entry</span><span lang="vi">Entry</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Spring</code>, <code>VectorSpring</code>, <code>springStep</code></td>
+                <td>root</td>
+                <td><span lang="en">Damped springs for scalars and vectors. Frame-rate independent.</span><span lang="vi">Lò xo tắt dần cho scalar và vector. Không phụ thuộc vào tốc độ khung hình.</span></td>
+              </tr>
+              <tr>
+                <td><code>VerletWorld</code>, <code>createRope</code>, <code>createCloth</code>, <code>ClothGeometry</code></td>
+                <td>root</td>
+                <td><span lang="en">Position-based simulation with colliders, ropes and cloth.</span><span lang="vi">Mô phỏng dựa trên vị trí, với collider, dây và vải.</span></td>
+              </tr>
+              <tr>
+                <td><code>PhysicsWorld</code></td>
+                <td><code>@tunn/oxygen/physics</code></td>
+                <td><span lang="en">Rapier rigid bodies. Requires <code>@dimforge/rapier3d-compat</code>.</span><span lang="vi">Rigid body Rapier. Cần <code>@dimforge/rapier3d-compat</code>.</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <pre><code>import { PhysicsWorld } from '@tunn/oxygen/physics';
+import { Spring } from '@tunn/oxygen';</code></pre>
+          <p>
+            <span lang="en">Reference: <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/physics.md">docs/physics.md</a>. Live example: <a href="../physics/">physics demo</a>.</span>
+            <span lang="vi">Tài liệu tham chiếu: <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/physics.md">docs/physics.md</a>. Ví dụ trực tiếp: <a href="../physics/">demo vật lý</a>.</span>
+          </p>
+        </section>
+
+        <section id="router">
+          <h2><span lang="en">Router</span><span lang="vi">Router</span></h2>
+          <p>
+            <span lang="en">
+              <code>Router</code> maps paths to views and runs each navigation as an ordered, abortable transition. A newer
+              navigation aborts an older one. Views are created once per route and may load their code lazily.
+            </span>
+            <span lang="vi">
+              <code>Router</code> ánh xạ đường dẫn tới view và chạy mỗi lần điều hướng như một transition có thứ tự, có thể
+              hủy. Điều hướng mới hơn sẽ hủy điều hướng cũ hơn. View được tạo một lần cho mỗi route và có thể tải code một
+              cách lười biếng.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>new Router(options)</code></td>
+                <td><span lang="en">Options: <code>routes</code>, <code>notFound</code>, <code>mode</code> (<code>'history'</code> or <code>'hash'</code>), <code>base</code>, <code>transition</code> (<code>'out-in'</code> or <code>'cross'</code>), <code>interceptLinks</code>, <code>prefetch</code>, <code>focusSelector</code>, <code>root</code>.</span><span lang="vi">Tùy chọn: <code>routes</code>, <code>notFound</code>, <code>mode</code> (<code>'history'</code> hoặc <code>'hash'</code>), <code>base</code>, <code>transition</code> (<code>'out-in'</code> hoặc <code>'cross'</code>), <code>interceptLinks</code>, <code>prefetch</code>, <code>focusSelector</code>, <code>root</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>start()</code>, <code>navigate(target, { replace?, force? })</code>, <code>back()</code></td>
+                <td><span lang="en">Start on the current location, navigate (resolves to a <code>NavigationResult</code>), and go back in history.</span><span lang="vi">Bắt đầu tại vị trí hiện tại, điều hướng (resolve thành <code>NavigationResult</code>), và quay lại trong lịch sử.</span></td>
+              </tr>
+              <tr>
+                <td><code>path(name, params?)</code>, <code>href(name, params?)</code>, <code>resolve(target)</code></td>
+                <td><span lang="en">Build a path or link for a named route, or match a target.</span><span lang="vi">Tạo đường dẫn hoặc link cho một route có tên, hoặc khớp một target.</span></td>
+              </tr>
+              <tr>
+                <td><code>busy</code>, <code>destroy()</code></td>
+                <td><span lang="en">Whether a transition is running; tears the router down.</span><span lang="vi">Cho biết có transition đang chạy hay không; hủy router.</span></td>
+              </tr>
+              <tr>
+                <td><code>compilePath</code>, <code>matchPath</code>, <code>buildPath</code></td>
+                <td><span lang="en">Path pattern helpers used by the router.</span><span lang="vi">Các hàm hỗ trợ pattern đường dẫn mà router dùng.</span></td>
+              </tr>
+              <tr>
+                <td><code>RouteNotFoundError</code></td>
+                <td><span lang="en">Thrown for unmatched paths when no <code>notFound</code> route is set.</span><span lang="vi">Ném ra cho đường dẫn không khớp khi không đặt route <code>notFound</code>.</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <span lang="en">Reference: <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/router.md">docs/router.md</a>. Live example: <a href="../router/">page transitions demo</a>.</span>
+            <span lang="vi">Tài liệu tham chiếu: <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/router.md">docs/router.md</a>. Ví dụ trực tiếp: <a href="../router/">demo chuyển trang</a>.</span>
+          </p>
+        </section>
+
+        <section id="story">
+          <h2><span lang="en">Scroll and story</span><span lang="vi">Cuộn và story</span></h2>
+          <p>
+            <span lang="en">
+              <code>VirtualScroll</code> turns wheel, touch and keyboard input into an eased scroll position.
+              <code>ScrollStory</code> stacks <code>StoryScene</code>s top to bottom, drives the camera from that position and
+              moves the matching DOM sections with it.
+            </span>
+            <span lang="vi">
+              <code>VirtualScroll</code> biến input từ chuột, cảm ứng và bàn phím thành vị trí cuộn đã được ease.
+              <code>ScrollStory</code> xếp các <code>StoryScene</code> từ trên xuống, điều khiển camera theo vị trí đó và di
+              chuyển các section DOM tương ứng.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>VirtualScroll(options)</code></td>
+                <td><span lang="en"><code>scrollTo(value, time?, ease?)</code>, <code>setTarget(value)</code>, <code>targetY</code>, <code>reset()</code>, <code>destroy()</code>.</span><span lang="vi"><code>scrollTo(value, time?, ease?)</code>, <code>setTarget(value)</code>, <code>targetY</code>, <code>reset()</code>, <code>destroy()</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>scrollState</code></td>
+                <td><span lang="en">Current <code>{ y, delta, max, ready }</code>.</span><span lang="vi"><code>{ y, delta, max, ready }</code> hiện tại.</span></td>
+              </tr>
+              <tr>
+                <td><code>ScrollStory(pipeline, root)</code></td>
+                <td><span lang="en"><code>load(configs, onProgress)</code>, <code>start()</code>, <code>scenes</code>, <code>scrollToTop()</code>.</span><span lang="vi"><code>load(configs, onProgress)</code>, <code>start()</code>, <code>scenes</code>, <code>scrollToTop()</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>StoryScene</code></td>
+                <td><span lang="en">Subclass with <code>super(name, order)</code>. Override <code>create</code>, <code>animateIn</code>, <code>animateOut</code> and related hooks.</span><span lang="vi">Lớp con với <code>super(name, order)</code>. Override <code>create</code>, <code>animateIn</code>, <code>animateOut</code> và các hook liên quan.</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <span lang="en">
+              Each scene's height is given in viewport heights and eases toward <code>mobileHeight</code> as the viewport
+              narrows. The story publishes <code>Story/scrollY</code>, <code>Story/visibleScenes</code> and related state.
+              Emit <code>Global/loaderFinished</code> when the intro ends. The guide shows a full story in
+              <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/guide.md">docs/guide.md</a>.
+            </span>
+            <span lang="vi">
+              Chiều cao mỗi scene được cho theo chiều cao viewport và ease về <code>mobileHeight</code> khi viewport hẹp lại.
+              Story publish <code>Story/scrollY</code>, <code>Story/visibleScenes</code> và các state liên quan. Emit
+              <code>Global/loaderFinished</code> khi phần intro kết thúc. Hướng dẫn trong
+              <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/guide.md">docs/guide.md</a> có một story đầy đủ.
+            </span>
+          </p>
+        </section>
+
+        <section id="assets">
+          <h2><span lang="en">Assets</span><span lang="vi">Tài nguyên</span></h2>
+          <p>
+            <span lang="en">
+              Textures are cached one per path and alpha mode. Compressed textures and Draco meshes are opt-in. A
+              <code>GLTFAssets</code> scope owns everything it loads, so disposing the scope releases it.
+            </span>
+            <span lang="vi">
+              Texture được cache mỗi path và mỗi alpha mode một lần. Texture nén và mesh Draco là tùy chọn. Scope
+              <code>GLTFAssets</code> sở hữu mọi thứ nó tải, nên dispose scope sẽ giải phóng tất cả.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>getTexture</code>, <code>getRepeatTexture</code>, <code>getKTX2Texture</code>, <code>initTextures</code>, <code>pendingTextureLoads</code></td>
+                <td><span lang="en">Cached texture loading, KTX2 transcoder setup and a promise for in-flight loads.</span><span lang="vi">Tải texture có cache, thiết lập transcoder KTX2 và một promise cho các lần tải đang diễn ra.</span></td>
+              </tr>
+              <tr>
+                <td><code>loadGeometry</code>, <code>configureGeometry</code>, <code>loadSkinAnimation</code></td>
+                <td><span lang="en">Loads <code>.bin</code> (Draco) and BufferGeometry JSON, and skeletal animation.</span><span lang="vi">Tải <code>.bin</code> (Draco) và BufferGeometry JSON, cùng animation skeletal.</span></td>
+              </tr>
+              <tr>
+                <td><code>GLTFAssets({ renderer, dracoDecoderPath?, ktx2TranscoderPath? })</code></td>
+                <td><span lang="en"><code>load(url, { signal, timeoutMs })</code> returns a handle; <code>dispose()</code> releases the scope.</span><span lang="vi"><code>load(url, { signal, timeoutMs })</code> trả về một handle; <code>dispose()</code> giải phóng scope.</span></td>
+              </tr>
+              <tr>
+                <td><code>createLoadProgress(weights, onChange)</code></td>
+                <td><span lang="en">Weighted progress across stages. The value never decreases.</span><span lang="vi">Tiến độ có trọng số qua các stage. Giá trị không bao giờ giảm.</span></td>
+              </tr>
+              <tr>
+                <td><code>ConfigStore</code></td>
+                <td><span lang="en">Typed reads from a flat key/value document. Wrong types throw <code>ConfigValueError</code>.</span><span lang="vi">Đọc có kiểu từ một document key/value phẳng. Sai kiểu sẽ ném <code>ConfigValueError</code>.</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <pre><code>const assets = new GLTFAssets({ renderer: pipeline.renderer, dracoDecoderPath: '/decoders/draco/' });
+const controller = new AbortController();
+const asset = await assets.load('/models/scene.glb', { signal: controller.signal, timeoutMs: 30000 });
+pipeline.scene.add(asset.gltf.scene);
+// On unmount: assets.dispose();</code></pre>
+        </section>
+
+        <section id="audio">
+          <h2><span lang="en">Audio</span><span lang="vi">Âm thanh</span></h2>
+          <p>
+            <span lang="en">
+              A Web Audio manager with named tracks and effect chains. It resumes on the first user gesture, ducks when the
+              page loses focus, and disposes every track it owns.
+            </span>
+            <span lang="vi">
+              Trình quản lý Web Audio với các track có tên và chuỗi effect. Nó tiếp tục phát sau cử chỉ người dùng đầu tiên,
+              giảm âm lượng khi trang mất focus, và dispose mọi track nó sở hữu.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>audioManager()</code>, <code>AudioManager</code></td>
+                <td><span lang="en">Process-wide singleton. <code>dispose()</code> closes its context; the accessor can then create a fresh manager.</span><span lang="vi">Singleton dùng chung cho cả tiến trình. <code>dispose()</code> đóng context; sau đó accessor có thể tạo một manager mới.</span></td>
+              </tr>
+              <tr>
+                <td><code>AudioTrack</code>, <code>EffectChain</code></td>
+                <td><span lang="en">A playable source and its effect graph. Duplicate IDs are rejected.</span><span lang="vi">Một nguồn có thể phát và đồ thị effect của nó. ID trùng lặp bị từ chối.</span></td>
+              </tr>
+              <tr>
+                <td><code>crossfadeMix(progress, bounds?)</code></td>
+                <td><span lang="en">Maps a cross-fade progress value to the mix between two tracks.</span><span lang="vi">Ánh xạ giá trị tiến độ cross-fade sang hệ số trộn giữa hai track.</span></td>
+              </tr>
+              <tr>
+                <td><code>RoundRobin</code>, <code>preferredAudioFormat()</code></td>
+                <td><span lang="en">A round-robin selection helper; <code>preferredAudioFormat()</code> returns <code>'ogg'</code> or <code>'mp3'</code> for the browser.</span><span lang="vi">Helper chọn luân phiên; <code>preferredAudioFormat()</code> trả về <code>'ogg'</code> hoặc <code>'mp3'</code> cho trình duyệt.</span></td>
+              </tr>
+              <tr>
+                <td><code>AudioLoadError</code></td>
+                <td><span lang="en">A track failed to fetch or decode.</span><span lang="vi">Một track tải hoặc giải mã thất bại.</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="text">
+          <h2><span lang="en">Text</span><span lang="vi">Văn bản</span></h2>
+          <p>
+            <span lang="en">MSDF text from BMFont-style JSON metadata, laid out into quad buffers.</span>
+            <span lang="vi">Văn bản MSDF từ metadata JSON kiểu BMFont, được bố cục vào các buffer quad.</span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>configureFonts({ fontPath })</code></td>
+                <td><span lang="en">Sets the base path for font files.</span><span lang="vi">Đặt đường dẫn gốc cho các file font.</span></td>
+              </tr>
+              <tr>
+                <td><code>loadFont(name)</code></td>
+                <td><span lang="en">Loads a font by name; resolves to a <code>Font</code>.</span><span lang="vi">Tải font theo tên; resolve thành <code>Font</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>layoutText(font, options)</code></td>
+                <td><span lang="en">Returns <code>TextBuffers</code> for the quad geometry.</span><span lang="vi">Trả về <code>TextBuffers</code> cho geometry quad.</span></td>
+              </tr>
+              <tr>
+                <td><code>karaokeBuffer(animation, words)</code></td>
+                <td><span lang="en">Per-word animation data for karaoke-style reveals.</span><span lang="vi">Dữ liệu animation theo từng từ cho hiệu ứng hiện chữ kiểu karaoke.</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="quality">
+          <h2><span lang="en">Quality and motion</span><span lang="vi">Chất lượng và chuyển động</span></h2>
+          <p>
+            <span lang="en">
+              Classify the GPU once, then let <code>QualityManager</code> move between the levels you define as frame times
+              change. Each level has a name and a pixel ratio, and can carry any other fields your scene needs. The
+              reduced-motion policy is global and follows the OS unless you set it.
+            </span>
+            <span lang="vi">
+              Phân loại GPU một lần, rồi để <code>QualityManager</code> chuyển giữa các level bạn định nghĩa khi thời gian
+              khung hình thay đổi. Mỗi level có tên và tỷ lệ pixel, và có thể mang thêm bất kỳ trường nào scene cần. Chính
+              sách giảm chuyển động là toàn cục và theo hệ điều hành trừ khi bạn đặt khác.
+            </span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>detectGPU(gl?)</code></td>
+                <td><span lang="en">Returns <code>{ renderer, vendor, tier, reason, mobile, webgl2 }</code>. <code>tier</code> is 0 to 3.</span><span lang="vi">Trả về <code>{ renderer, vendor, tier, reason, mobile, webgl2 }</code>. <code>tier</code> từ 0 đến 3.</span></td>
+              </tr>
+              <tr>
+                <td><code>classifyGPU(renderer, hints)</code></td>
+                <td><span lang="en">Pure tier classification from a renderer string.</span><span lang="vi">Phân loại tier thuần túy từ chuỗi renderer.</span></td>
+              </tr>
+              <tr>
+                <td><code>QualityManager(options)</code></td>
+                <td><span lang="en"><code>bindPipeline(pipeline)</code>, <code>onChange(listener)</code>, <code>set(index)</code>, <code>start()</code>, <code>stop()</code>, <code>level</code>.</span><span lang="vi"><code>bindPipeline(pipeline)</code>, <code>onChange(listener)</code>, <code>set(index)</code>, <code>start()</code>, <code>stop()</code>, <code>level</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>AdaptiveQuality</code>, <code>levelForTier(tier, count)</code></td>
+                <td><span lang="en">The frame-time controller and the tier-to-level mapping.</span><span lang="vi">Bộ điều khiển theo thời gian khung hình và ánh xạ từ tier sang level.</span></td>
+              </tr>
+              <tr>
+                <td><code>prefersReducedMotion()</code></td>
+                <td><span lang="en">Current policy as a boolean.</span><span lang="vi">Chính sách hiện tại dưới dạng boolean.</span></td>
+              </tr>
+              <tr>
+                <td><code>setMotionPreference('system' | 'reduce' | 'full')</code></td>
+                <td><span lang="en">Explicit user control. <code>'system'</code> follows the OS.</span><span lang="vi">Điều khiển tường minh của người dùng. <code>'system'</code> theo hệ điều hành.</span></td>
+              </tr>
+              <tr>
+                <td><code>onMotionChange(listener)</code></td>
+                <td><span lang="en">Calls the listener now and on change. Returns the unsubscribe function.</span><span lang="vi">Gọi listener ngay và mỗi khi thay đổi. Trả về hàm hủy đăng ký.</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <span lang="en">
+              Application-authored animation and shaders must check <code>prefersReducedMotion()</code> themselves. The engine
+              does not disable keyboard navigation or replace semantic HTML.
+            </span>
+            <span lang="vi">
+              Hoạt ảnh và shader do ứng dụng viết phải tự kiểm tra <code>prefersReducedMotion()</code>. Engine không tắt điều
+              hướng bằng bàn phím và cũng không thay thế HTML ngữ nghĩa.
+            </span>
+          </p>
+        </section>
+
+        <section id="math">
+          <h2><span lang="en">Math and random</span><span lang="vi">Toán và ngẫu nhiên</span></h2>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Export</span><span lang="vi">Export</span></th>
+                <th><span lang="en">Purpose</span><span lang="vi">Mục đích</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>clamp(value, min?, max?)</code>, <code>range(value, oldMin, oldMax, newMin, newMax, clamp?)</code></td>
+                <td><span lang="en">Clamping and remapping.</span><span lang="vi">Giới hạn giá trị và ánh xạ lại khoảng.</span></td>
+              </tr>
+              <tr>
+                <td><code>mix(a, b, alpha)</code>, <code>smoothstep(edge0, edge1, x)</code>, <code>radians(deg)</code></td>
+                <td><span lang="en">Linear blend, smooth Hermite step and degree conversion.</span><span lang="vi">Nội suy tuyến tính, bước Hermite mượt và chuyển độ sang radian.</span></td>
+              </tr>
+              <tr>
+                <td><code>lerp(target, value, alpha)</code>, <code>lerpVec(value, target, alpha)</code></td>
+                <td><span lang="en">Frame-rate normalised to 60 Hz frames, so the result is the same at any refresh rate.</span><span lang="vi">Chuẩn hóa theo khung hình 60 Hz, nên kết quả giống nhau ở mọi tần số làm mới.</span></td>
+              </tr>
+              <tr>
+                <td><code>createRandom(seed)</code></td>
+                <td><span lang="en">Seeded Mulberry32 generator returning <code>RandomFn</code>.</span><span lang="vi">Bộ sinh số Mulberry32 có seed, trả về <code>RandomFn</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>randomRange(random, min, max)</code></td>
+                <td><span lang="en">Uniform sample from a seeded generator.</span><span lang="vi">Lấy mẫu đều từ một bộ sinh có seed.</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="errors">
+          <h2><span lang="en">Errors</span><span lang="vi">Lỗi</span></h2>
+          <p>
+            <span lang="en">Every failure the engine raises is a typed error, so callers can branch on <code>instanceof</code>.</span>
+            <span lang="vi">Mọi lỗi engine ném ra đều có kiểu, nên caller có thể rẽ nhánh bằng <code>instanceof</code>.</span>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th><span lang="en">Error</span><span lang="vi">Lỗi</span></th>
+                <th><span lang="en">Raised when</span><span lang="vi">Được ném khi</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>AssetLoadError</code></td>
+                <td><span lang="en">An asset fails to load. The message names the URL.</span><span lang="vi">Một asset tải thất bại. Thông báo có chứa URL.</span></td>
+              </tr>
+              <tr>
+                <td><code>ShaderNotFoundError</code></td>
+                <td><span lang="en">A shader name is not registered.</span><span lang="vi">Tên shader chưa được đăng ký.</span></td>
+              </tr>
+              <tr>
+                <td><code>ConfigValueError</code></td>
+                <td><span lang="en">A config read has the wrong type.</span><span lang="vi">Đọc config sai kiểu.</span></td>
+              </tr>
+              <tr>
+                <td><code>GeometryFormatError</code></td>
+                <td><span lang="en">A geometry file has an invalid format.</span><span lang="vi">File geometry có định dạng không hợp lệ.</span></td>
+              </tr>
+              <tr>
+                <td><code>UnsupportedFeatureError</code></td>
+                <td><span lang="en">The browser lacks a required feature, such as WebGL 2.</span><span lang="vi">Trình duyệt thiếu một tính năng bắt buộc, như WebGL 2.</span></td>
+              </tr>
+              <tr>
+                <td><code>MissingDependencyError</code></td>
+                <td><span lang="en">An optional peer, such as Rapier, is not installed.</span><span lang="vi">Một peer tùy chọn, như Rapier, chưa được cài đặt.</span></td>
+              </tr>
+              <tr>
+                <td><code>RouteNotFoundError</code></td>
+                <td><span lang="en">No route matches and no <code>notFound</code> route is set.</span><span lang="vi">Không có route nào khớp và không đặt route <code>notFound</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>DisposedError</code></td>
+                <td><span lang="en">An object is used after <code>dispose()</code>.</span><span lang="vi">Một object được dùng sau khi gọi <code>dispose()</code>.</span></td>
+              </tr>
+              <tr>
+                <td><code>AudioLoadError</code></td>
+                <td><span lang="en">An audio track fails to fetch or decode.</span><span lang="vi">Một track âm thanh tải hoặc giải mã thất bại.</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <footer>
+          <p>
+            <span lang="en">
+              Back to <a href="../examples/">the examples</a>. The generated TypeDoc reference, with every type and parameter, is built by
+              <code>npm run build:docs</code>.
+            </span>
+            <span lang="vi">
+              Quay lại <a href="../examples/">các ví dụ</a>. Tài liệu TypeDoc đầy đủ, gồm mọi type và tham số, được tạo bằng
+              <code>npm run build:docs</code>.
+            </span>
+          </p>
+        </footer>
+      </main>
+      <aside class="page-rail" aria-label="Page navigation">
+        <p class="rail-title"><span lang="en">On this page</span><span lang="vi">Trên trang này</span></p>
+        <a href="#overview"><span lang="en">Overview</span><span lang="vi">Tổng quan</span></a>
+        <a href="#quick-start"><span lang="en">Quick start</span><span lang="vi">Bắt đầu nhanh</span></a>
+        <a href="#loop"><span lang="en">Core concepts</span><span lang="vi">Khái niệm cốt lõi</span></a>
+        <a href="#pipeline"><span lang="en">Rendering</span><span lang="vi">Kết xuất</span></a>
+        <a href="#physics"><span lang="en">Modules</span><span lang="vi">Mô-đun</span></a>
+        <a href="#quality"><span lang="en">Utilities</span><span lang="vi">Tiện ích</span></a>
+        <div class="rail-demos">
+          <p class="rail-title"><span class="nav-demo" aria-hidden="true"></span><span lang="en">Live playgrounds</span><span lang="vi">Demo tương tác</span></p>
+          <a href="#tweens"><span lang="en">Tweens & DOM</span><span lang="vi">Tween & DOM</span><span aria-hidden="true">↗</span></a>
+          <a href="#events"><span lang="en">Events & state</span><span lang="vi">Sự kiện & trạng thái</span><span aria-hidden="true">↗</span></a>
+          <a href="#input"><span lang="en">Pointer input</span><span lang="vi">Đầu vào con trỏ</span><span aria-hidden="true">↗</span></a>
+          <a href="#pipeline"><span lang="en">Render pipeline</span><span lang="vi">Pipeline render</span><span aria-hidden="true">↗</span></a>
+        </div>
+        <a class="back-to-top" href="#main-content"><span aria-hidden="true">↑</span><span lang="en">Back to top</span><span lang="vi">Về đầu trang</span></a>
+      </aside>
+    </div>
+    <!-- site:footer -->
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

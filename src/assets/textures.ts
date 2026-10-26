@@ -8,8 +8,8 @@ import { cleanAssetPath } from '../core/paths';
  * path and alpha mode. Loads are tracked so a boot sequence can await them before GPU warm-up.
  */
 // Bitmaps are decoded premultiplied unless a caller asks for `premultiplyAlpha: false` (RGBM env maps, PBR inputs).
-const premultipliedLoader = new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'premultiply' });
-const straightLoader = new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'none' });
+let premultipliedLoader: THREE.ImageBitmapLoader | null = null;
+let straightLoader: THREE.ImageBitmapLoader | null = null;
 let ktx2Loader: KTX2Loader | null = null;
 const cache = new Map<string, THREE.Texture>();
 const pending = new Set<Promise<unknown>>();
@@ -20,12 +20,13 @@ export interface TextureSetup {
 }
 
 export function initTextures(renderer: THREE.WebGLRenderer, setup: TextureSetup): void {
+  ktx2Loader?.dispose();
   ktx2Loader = new KTX2Loader().setTranscoderPath(setup.ktx2TranscoderPath).detectSupport(renderer);
 }
 
 function track<T>(p: Promise<T>): Promise<T> {
   pending.add(p);
-  void p.finally(() => pending.delete(p));
+  void p.then(() => pending.delete(p), () => pending.delete(p));
   return p;
 }
 
@@ -64,7 +65,10 @@ function load(path: string, repeat: boolean, options: TextureOptions): THREE.Tex
 
   const url = src;
   const promise = new Promise<void>((resolve, reject) => {
-    (premultiply ? premultipliedLoader : straightLoader).load(
+    const loader = premultiply
+      ? (premultipliedLoader ??= new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'premultiply' }))
+      : (straightLoader ??= new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'none' }));
+    loader.load(
       url,
       (bitmap) => {
         texture.image = bitmap;

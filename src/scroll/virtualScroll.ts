@@ -1,6 +1,7 @@
+import { prefersReducedMotion } from '../accessibility/motion';
 import { onFrame } from '../core/loop';
 import { clamp } from '../core/math';
-import { device, stage } from '../core/stage';
+import { device, initializeStage, stage } from '../core/stage';
 import { clearTween, tween } from '../core/tween';
 
 /**
@@ -17,7 +18,7 @@ export interface ScrollOptions {
 }
 
 const PROHIBITED = ['prevent_interactionScroll'];
-const ua = navigator.userAgent;
+const ua = typeof navigator === 'undefined' ? '' : navigator.userAgent;
 const os = /Mac/.test(ua) && !device.mobile ? 'mac' : /Windows/.test(ua) ? 'windows' : /Android/.test(ua) ? 'android' : 'other';
 const browser = /Firefox/.test(ua) ? 'firefox' : /Edg\//.test(ua) || /Chrome/.test(ua) ? 'chrome' : /Safari/.test(ua) ? 'safari' : 'other';
 
@@ -47,27 +48,39 @@ export class VirtualScroll {
   private pointerDeltaY = 0;
   private mouseX = 0;
   private mouseY = 0;
+  private readonly events = new AbortController();
+  private readonly offFrame: () => void;
 
   constructor(private readonly opts: ScrollOptions) {
+    initializeStage();
+    const { signal } = this.events;
     window.addEventListener('pointermove', (e) => {
       this.mouseX = e.clientX;
       this.mouseY = e.clientY;
-    }, { passive: true });
+    }, { passive: true, signal });
     if (!device.mobile) {
-      window.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
-      if (opts.keyboard) window.addEventListener('keydown', (e) => this.onKey(e.key, e.shiftKey));
+      window.addEventListener('wheel', (e) => this.onWheel(e), { passive: false, signal });
+      if (opts.keyboard) window.addEventListener('keydown', (e) => this.onKey(e), { signal });
     }
     if (opts.drag) {
       window.addEventListener('touchstart', (e) => {
         const t = e.touches[0];
         if (t && !prohibitedAt(t.clientX, t.clientY) && e.cancelable) e.preventDefault();
-      }, { passive: false });
-      window.addEventListener('pointerdown', (e) => this.onDown(e));
-      window.addEventListener('pointermove', (e) => this.onDrag(e));
-      window.addEventListener('pointerup', (e) => this.onUp(e));
-      window.addEventListener('pointercancel', (e) => this.onUp(e));
+      }, { passive: false, signal });
+      window.addEventListener('pointerdown', (e) => this.onDown(e), { signal });
+      window.addEventListener('pointermove', (e) => this.onDrag(e), { signal });
+      window.addEventListener('pointerup', (e) => this.onUp(e), { signal });
+      window.addEventListener('pointercancel', (e) => this.onUp(e), { signal });
     }
-    onFrame(() => this.loop());
+    this.offFrame = onFrame(() => this.loop());
+  }
+
+  destroy(): void {
+    this.events.abort();
+    this.offFrame();
+    this.stopInertia();
+    this.enabled = false;
+    this.isDragging = false;
   }
 
   private stopInertia(): void {
@@ -76,13 +89,15 @@ export class VirtualScroll {
   }
 
   private loop(): void {
+    const reduced = prefersReducedMotion();
+    if (reduced) this.isInertia = false;
     if (this.isInertia) {
       this.inertia.y *= 0.9;
       this.target.y += this.inertia.y;
     }
     const scale = device.mobile ? this.opts.touchScale : this.opts.scale;
     if (this.opts.limit) this.target.y = Math.min(Math.max(this.target.y, 0), this.max.y / scale);
-    this.delta.y = this.block ? 0 : 0.5 * (this.target.y * scale - this.y);
+    this.delta.y = this.block ? 0 : (reduced ? 1 : 0.5) * (this.target.y * scale - this.y);
     this.y += this.delta.y;
     if (Math.abs(this.delta.y) < 0.01) this.delta.y = 0;
     if (Math.abs(this.y) < 0.001) this.y = 0;
@@ -148,15 +163,20 @@ export class VirtualScroll {
     if (!this.enabled || !this.isDragging) return;
     this.isDragging = false;
     if (prohibitedAt(e.clientX, e.clientY)) return;
+    if (prefersReducedMotion()) { this.pointerDeltaY = 0; return; }
     const m = os === 'android' ? 35 : 25;
     tween(this.target, { y: this.target.y - this.pointerDeltaY * m }, 2500, 'easeOutQuint');
     this.pointerDeltaY = 0;
   }
 
-  private onKey(key: string, shift: boolean): void {
-    if (!this.enabled) return;
+  private onKey(event: KeyboardEvent): void {
+    if (!this.enabled || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.composedPath().some((target) => target instanceof Element && (
+      target.matches('input, textarea, select, button, a[href], .prevent_interactionScroll') ||
+      (target instanceof HTMLElement && target.isContentEditable)
+    ))) return;
     let dst: number | null = null;
-    switch (key) {
+    switch (event.key) {
       case 'Up':
       case 'ArrowUp':
         dst = this.target.y - 150;
@@ -179,10 +199,13 @@ export class VirtualScroll {
         break;
       case ' ':
       case 'Spacebar':
-        this.onKey(shift ? 'PageUp' : 'PageDown', false);
-        return;
+        dst = this.target.y + (event.shiftKey ? -stage.height : stage.height);
+        break;
     }
-    if (dst !== null) this.scrollTo(dst, 400, 'easeOutCubic');
+    if (dst !== null) {
+      event.preventDefault();
+      this.scrollTo(dst, 400, 'easeOutCubic');
+    }
   }
 
   scrollTo(value: number, time = 800, ease = 'easeInOutCubic'): void {

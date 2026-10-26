@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "types": ["node", "vite/client"],
-    "paths": { "@tunn/oxygen": ["./src/index.ts"] }
+    "paths": { "@tunn/oxygen": ["./src/index.ts"], "@tunn/oxygen/physics": ["./src/physics.ts"] }
   },
   "include": ["examples", "vite.examples.config.ts"]
 }

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { frame } from '../core/loop';
-import { getDPR, stage } from '../core/stage';
+import { getDPR, initializeStage, stage } from '../core/stage';
+import { DisposedError, UnsupportedFeatureError } from '../core/errors';
 import type { PostStack } from '../post/postStack';
 import { globalUniforms } from './shaderLibrary';
 
@@ -14,6 +15,8 @@ import { globalUniforms } from './shaderLibrary';
  * last pass writes the canvas. Add the composite material as a `ShaderPass` to keep it.
  */
 export interface PipelineOptions {
+  /** Viewport preserves full-page stories; container sizes an embedded canvas to its host. */
+  sizeMode?: 'viewport' | 'container';
   clearColor?: THREE.ColorRepresentation;
   /** MSAA samples of the scene buffer. Default 4. */
   samples?: number;
@@ -27,6 +30,11 @@ export interface PipelineOptions {
 }
 
 export interface Pipeline {
+  readonly size: { width: number; height: number };
+  readonly status: 'ready' | 'lost' | 'disposed';
+  onContextChange(listener: (status: 'ready' | 'lost' | 'disposed') => void): () => void;
+  /** Releases only pipeline-owned GPU objects. Scene assets and the optional post stack remain caller-owned. */
+  dispose(): void;
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   uiScene: THREE.Scene;
@@ -59,8 +67,9 @@ const _m = new THREE.Vector3();
 /** Meshes drawn outside the three scenes (full-screen passes) that only run on demand; precompiled by `warmUp`. */
 const offscreenPasses = new Set<THREE.Object3D>();
 
-export function registerOffscreenPass(object: THREE.Object3D): void {
+export function registerOffscreenPass(object: THREE.Object3D): () => void {
   offscreenPasses.add(object);
+  return () => { offscreenPasses.delete(object); };
 }
 
 /** Shows every object (and turns off culling) for one warm-up draw; returns the restore function. */
@@ -96,8 +105,18 @@ function worldZ(o: THREE.Object3D): number {
 }
 
 export function createPipeline(canvasParent: HTMLElement, options: PipelineOptions = {}): Pipeline {
+  if (typeof document === 'undefined') throw new UnsupportedFeatureError('WebGL 2', 'createPipeline requires a browser');
   let dpr = getDPR();
-  const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance', alpha: false, stencil: false });
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('webgl2', { antialias: false, powerPreference: 'high-performance', alpha: false, stencil: false });
+  if (!context) throw new UnsupportedFeatureError('WebGL 2', 'the browser could not create a rendering context');
+  initializeStage();
+  const renderer = new THREE.WebGLRenderer({ canvas, context, antialias: false, alpha: false, stencil: false });
+  let status: Pipeline['status'] = 'ready';
+  const contextListeners = new Set<(status: Pipeline['status']) => void>();
+  const events = new AbortController();
+  const size = { width: stage.width, height: stage.height };
+  const requireLive = (): void => { if (status === 'disposed') throw new DisposedError('Pipeline'); };
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.setPixelRatio(dpr);
   renderer.setSize(stage.width, stage.height);
@@ -109,7 +128,6 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
   renderer.sortObjects = true;
   renderer.setOpaqueSort((a, b) => a.renderOrder - b.renderOrder || (a.material.id - b.material.id) || a.id - b.id);
   renderer.setTransparentSort((a, b) => a.renderOrder - b.renderOrder || worldZ(a.object) - worldZ(b.object) || a.id - b.id);
-  const canvas = renderer.domElement;
   canvas.style.position = 'absolute';
   canvas.style.top = '0';
   canvas.style.left = '0';
@@ -125,25 +143,52 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
     type: options.hdr ? THREE.HalfFloatType : THREE.UnsignedByteType,
     generateMipmaps: false,
   });
-  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), createCopyMaterial());
+  const copyMaterial = createCopyMaterial();
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), copyMaterial);
   quad.frustumCulled = false;
   const quadCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const preRenders = new Set<() => void>();
   const camQuat = new THREE.Quaternion();
 
   const resize = (): void => {
+    if (status === 'disposed') return;
+    size.width = Math.max(1, options.sizeMode === 'container' ? canvasParent.clientWidth : stage.width);
+    size.height = Math.max(1, options.sizeMode === 'container' ? canvasParent.clientHeight : stage.height);
     renderer.setPixelRatio(dpr);
-    renderer.setSize(stage.width, stage.height);
-    sceneRT.setSize(stage.width * dpr, stage.height * dpr);
-    pipeline.post?.setSize(stage.width * dpr, stage.height * dpr);
-    uiCamera.left = -stage.width / 2;
-    uiCamera.right = stage.width / 2;
-    uiCamera.top = stage.height / 2;
-    uiCamera.bottom = -stage.height / 2;
-    uiCamera.position.set(stage.width / 2, -stage.height / 2, 1);
+    renderer.setSize(size.width, size.height);
+    sceneRT.setSize(size.width * dpr, size.height * dpr);
+    pipeline.post?.setSize(size.width * dpr, size.height * dpr);
+    uiCamera.left = -size.width / 2;
+    uiCamera.right = size.width / 2;
+    uiCamera.top = size.height / 2;
+    uiCamera.bottom = -size.height / 2;
+    uiCamera.position.set(size.width / 2, -size.height / 2, 1);
     uiCamera.updateProjectionMatrix();
   };
   const pipeline: Pipeline = {
+    size,
+    get status() { return status; },
+    onContextChange(listener) {
+      requireLive();
+      contextListeners.add(listener);
+      return () => contextListeners.delete(listener);
+    },
+    dispose() {
+      if (status === 'disposed') return;
+      status = 'disposed';
+      events.abort();
+      observer?.disconnect();
+      preRenders.clear();
+      sceneRT.dispose();
+      quad.geometry.dispose();
+      copyMaterial.dispose();
+      renderer.dispose();
+      renderer.forceContextLoss();
+      canvas.remove();
+      const listeners = [...contextListeners];
+      contextListeners.clear();
+      for (const listener of listeners) listener(status);
+    },
     renderer,
     scene,
     uiScene,
@@ -156,26 +201,31 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
       return dpr;
     },
     setComposite(material) {
+      requireLive();
       material.depthTest = false;
       material.depthWrite = false;
       quad.material = material;
       pipeline.composite = material;
     },
     setPost(stack) {
+      requireLive();
       pipeline.post = stack;
-      stack?.setSize(stage.width * dpr, stage.height * dpr);
+      stack?.setSize(size.width * dpr, size.height * dpr);
     },
     setPixelRatio(value) {
-      if (!(value > 0)) throw new RangeError(`Pixel ratio must be positive, got ${value}`);
+      requireLive();
+      if (!(value > 0) || !Number.isFinite(value)) throw new RangeError(`Pixel ratio must be positive and finite, got ${value}`);
       if (value === dpr) return;
       dpr = value;
       resize();
     },
     addPreRender(fn) {
+      requireLive();
       preRenders.add(fn);
       return () => preRenders.delete(fn);
     },
     async warmUp(camera) {
+      requireLive();
       const passes: [THREE.Scene, THREE.Camera][] = [
         [scene, camera],
         [beforePassesScene, uiCamera],
@@ -185,26 +235,34 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
       const targets: [THREE.Object3D, THREE.Camera][] = [...passes, ...[...offscreenPasses].map((o): [THREE.Object3D, THREE.Camera] => [o, quadCamera])];
       if (renderer.extensions.has('KHR_parallel_shader_compile')) await Promise.all(targets.map(([o, c]) => renderer.compileAsync(o, c)));
       else for (const [o, c] of targets) renderer.compile(o, c);
+      requireLive();
       // One draw of everything into a 1x1 target uploads the textures and vertex buffers (and links any program whose
       // key depends on the drawn object). Layers are opened so FX-layer meshes are included.
       const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.UnsignedByteType, generateMipmaps: false });
       const previous = renderer.getRenderTarget();
-      for (const [s, c] of passes) {
-        const restore = revealAll(s);
-        const mask = c.layers.mask;
-        c.layers.enableAll();
-        renderer.setRenderTarget(target);
-        renderer.clear();
-        renderer.render(s, c);
-        c.layers.mask = mask;
-        restore();
+      try {
+        for (const [s, c] of passes) {
+          const restore = revealAll(s);
+          const mask = c.layers.mask;
+          try {
+            c.layers.enableAll();
+            renderer.setRenderTarget(target);
+            renderer.clear();
+            renderer.render(s, c);
+          } finally {
+            c.layers.mask = mask;
+            restore();
+          }
+        }
+        pipeline.post?.render(sceneRT.texture, target);
+      } finally {
+        renderer.setRenderTarget(previous);
+        target.dispose();
       }
-      // One pass of the post stack compiles its programs and allocates its targets.
-      pipeline.post?.render(sceneRT.texture, target);
-      renderer.setRenderTarget(previous);
-      target.dispose();
     },
     render(camera) {
+      requireLive();
+      if (status === 'lost') return;
       globalUniforms.time.value += 0.001 * frame.delta;
       for (const fn of preRenders) fn();
       camera.getWorldQuaternion(camQuat);
@@ -235,12 +293,20 @@ export function createPipeline(canvasParent: HTMLElement, options: PipelineOptio
   };
   const drawComposite = (): void => {
     const tDiffuse = quad.material.uniforms.tDiffuse;
-      if (!tDiffuse) throw new Error(`Composite material "${quad.material.name}" has no tDiffuse uniform`);
+    if (!tDiffuse) throw new Error(`Composite material "${quad.material.name}" has no tDiffuse uniform`);
     tDiffuse.value = sceneRT.texture;
     renderer.render(quad, quadCamera);
   };
   resize();
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', resize, { signal: events.signal });
+  const observer = options.sizeMode === 'container' ? new ResizeObserver(resize) : null;
+  observer?.observe(canvasParent);
+  const publishContext = (next: Pipeline['status']): void => {
+    status = next;
+    for (const listener of contextListeners) listener(next);
+  };
+  canvas.addEventListener('webglcontextlost', (event) => { event.preventDefault(); publishContext('lost'); }, { signal: events.signal });
+  canvas.addEventListener('webglcontextrestored', () => { resize(); publishContext('ready'); }, { signal: events.signal });
   return pipeline;
 }
 

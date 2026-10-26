@@ -73,7 +73,9 @@ export abstract class StoryScene extends Component {
 
   /** Creates child components (`create`), then the DOM section in `storyRoot`. Subclasses load assets first. */
   async load(storyRoot: HTMLElement): Promise<void> {
+    if (this.destroyed) return;
     await this.create();
+    if (this.destroyed) return;
     this.ui = new SceneUI(storyRoot, { className: this.name.replace('Scene', 'UI'), ...this.uiOptions() });
     this.ui.onInView = () => this.onInView();
     this.ui.onOutView = () => this.onOutView();
@@ -187,5 +189,11 @@ export abstract class StoryScene extends Component {
     this.ui?.handleUIResize();
     await this.handleResize();
     this.isResizing = false;
+  }
+
+  override destroy(): void {
+    this.ui?.destroy();
+    this.ui = null;
+    super.destroy();
   }
 }

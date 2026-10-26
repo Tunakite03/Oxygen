@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { pointer, stage } from '../core/stage';
+import { initializeStage, pointer, stage } from '../core/stage';
 
 /**
  * Pointer interaction with 3D meshes: raycasts registered meshes from the pointer, firing over/out on hover
@@ -49,11 +49,27 @@ export class Interaction3D {
   private pressed: Entry | null = null;
   enabled = true;
   intersecting = false;
+  private readonly events = new AbortController();
 
   constructor(private readonly getCamera: () => THREE.Camera) {
-    window.addEventListener('pointermove', (e) => this.move(e.clientX, e.clientY), { passive: true });
-    window.addEventListener('pointerdown', (e) => this.start(e.clientX, e.clientY));
-    window.addEventListener('pointerup', (e) => this.click(e.clientX, e.clientY, e.button));
+    initializeStage();
+    const { signal } = this.events;
+    window.addEventListener('pointermove', (e) => this.move(e.clientX, e.clientY), { passive: true, signal });
+    window.addEventListener('pointerdown', (e) => this.start(e.clientX, e.clientY), { signal });
+    window.addEventListener('pointerup', (e) => this.click(e.clientX, e.clientY, e.button), { signal });
+  }
+
+  destroy(): void {
+    this.events.abort();
+    this.enabled = false;
+    this.intersecting = false;
+    this.entries.length = 0;
+    this.hover = null;
+    this.pressed = null;
+    if (main === this) {
+      main = null;
+      document.body.style.cursor = '';
+    }
   }
 
   add(mesh: THREE.Object3D, hover?: Callback, click?: Callback, move?: Callback): void {

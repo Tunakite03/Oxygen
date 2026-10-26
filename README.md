@@ -8,6 +8,12 @@ page transitions, adaptive quality, pointer input, Web Audio and a debug panel.
 It is a clean-room implementation. It contains no code, shaders or assets from any third-party framework or site;
 projects supply their own content on top of it.
 
+## Integration status
+
+Version 0.3.0-beta.0 is prepared for local package testing. Public npm release remains blocked (`private: true`, `UNLICENSED`) until the owner selects a license. See the [integration and migration guide](docs/guide.md) for ownership, SSR imports, accessibility, GLB/glTF, CI and release requirements. Generate the API with `npm run build:docs`; the embedded-scene demo covers mount/unmount and fallback behavior.
+
+Rigid-body physics is now imported from `@tunn/oxygen/physics`; other utilities remain in the root entry.
+
 ## Install
 
 ```sh
@@ -15,7 +21,7 @@ npm install @tunn/oxygen three zod
 npm install @dimforge/rapier3d-compat   # only for PhysicsWorld (rigid bodies)
 ```
 
-Peer dependencies: `three` (>= 0.180), `zod` (4.x) and, optionally, `@dimforge/rapier3d-compat` (>= 0.19), which is
+Peer dependencies: `three` (~0.186.1), `zod` (4.x) and, optionally, `@dimforge/rapier3d-compat` (~0.21.0), which is
 imported on demand by `PhysicsWorld.create`. three's `basis_transcoder` files are needed for KTX2 and Google's Draco
 decoder (`draco_wasm_wrapper.js`, `draco_decoder.wasm`) for `.bin` geometry.
 

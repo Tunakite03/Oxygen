@@ -1,5 +1,6 @@
 import { setFrameDelta } from './math';
 import { updateTweens } from './tween';
+import { initializeStage } from './stage';
 
 /**
  * Single requestAnimationFrame loop with ordered phases: tweens, `loop`, `afterLoops`, `beforeRender`, the render
@@ -34,14 +35,16 @@ const phases: Record<Phase, Set<FrameCallback>> = {
 let renderFn: (() => void) | null = null;
 let last = 0;
 let running = false;
+let animationFrame: number | null = null;
 
 export function onFrame(cb: FrameCallback, phase: Phase = 'loop'): () => void {
   phases[phase].add(cb);
   return () => phases[phase].delete(cb);
 }
 
-export function setRenderFunction(fn: () => void): void {
+export function setRenderFunction(fn: () => void): () => void {
   renderFn = fn;
+  return () => { if (renderFn === fn) renderFn = null; };
 }
 
 function run(phase: Phase): void {
@@ -49,7 +52,9 @@ function run(phase: Phase): void {
 }
 
 function tick(tsl: number): void {
-  requestAnimationFrame(tick);
+  if (!running) return;
+  animationFrame = requestAnimationFrame(tick);
+  if (document.hidden) { last = 0; return; }
   if (tsl <= last) return;
   const dt = last === 0 ? 16.6667 : tsl - last;
   last = tsl;
@@ -58,7 +63,7 @@ function tick(tsl: number): void {
   frame.count++;
   setFrameDelta(frame.delta);
   sampleRefreshRate(dt);
-  updateTweens(dt);
+  updateTweens(frame.delta);
   run('loop');
   run('afterLoops');
   run('beforeRender');
@@ -68,6 +73,17 @@ function tick(tsl: number): void {
 
 export function startLoop(): void {
   if (running) return;
+  initializeStage();
   running = true;
-  requestAnimationFrame(tick);
+  last = 0;
+  animationFrame = requestAnimationFrame(tick);
+}
+
+/** Stops scheduling frames. Subscriptions remain registered so startLoop() can resume them. */
+export function stopLoop(): void {
+  running = false;
+  if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+  animationFrame = null;
+  last = 0;
+  refreshSamples.length = 0;
 }

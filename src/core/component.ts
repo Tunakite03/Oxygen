@@ -9,6 +9,8 @@ import type { Phase } from './loop';
 export class Component {
   parent: Component | null = null;
   readonly group = new THREE.Group();
+  protected destroyed = false;
+  private readonly children = new Set<Component>();
   private readonly loops = new Map<(time: number, delta: number) => void, () => void>();
   private readonly timers = new Set<ReturnType<typeof setTimeout>>();
   private _visible = true;
@@ -24,7 +26,10 @@ export class Component {
 
   /** Adds a child component; its group is parented under ours. */
   addChild<T extends Component>(child: T): T {
+    if (this.destroyed) throw new Error('Cannot add a child to a destroyed component');
+    child.parent?.children.delete(child);
     child.parent = this;
+    this.children.add(child);
     this.group.add(child.group);
     return child;
   }
@@ -43,7 +48,7 @@ export class Component {
   }
 
   startRender(callback: (time: number, delta: number) => void, phase: Phase = 'loop'): void {
-    if (this.loops.has(callback)) return;
+    if (this.destroyed || this.loops.has(callback)) return;
     const off = onFrame((t, d) => {
       if (this.isEffectivelyVisible()) callback(t, d);
     }, phase);
@@ -61,6 +66,7 @@ export class Component {
   }
 
   delayedCall(callback: () => void, ms: number): void {
+    if (this.destroyed) return;
     const id = setTimeout(() => {
       this.timers.delete(id);
       callback();
@@ -69,9 +75,16 @@ export class Component {
   }
 
   destroy(): void {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.visible = false;
     this.clearRenders();
     for (const id of this.timers) clearTimeout(id);
     this.timers.clear();
+    for (const child of this.children) child.destroy();
+    this.children.clear();
+    this.parent?.children.delete(this);
+    this.parent = null;
     this.group.removeFromParent();
   }
 }

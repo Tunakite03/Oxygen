@@ -1,6 +1,6 @@
 {
   "name": "@tunn/oxygen",
-  "version": "0.2.0",
+  "version": "0.3.0-beta.0",
   "description": "Oxygen: a WebGL engine for creative sites on three.js. Frame loop, tweens, asset loading, shader library, render pipeline with GPU warm-up, scroll stories, post-processing, GPU particles, physics, routing with page transitions, adaptive quality, pointer input, Web Audio and a debug GUI.",
   "type": "module",
   "sideEffects": true,
@@ -11,24 +11,33 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./physics": {
+      "types": "./dist/physics.d.ts",
+      "import": "./dist/physics.js"
     }
   },
   "files": [
     "dist",
-    "src",
     "docs",
     "README.md"
   ],
   "scripts": {
     "dev": "vite --config vite.examples.config.ts --host",
-    "build": "tsc -p tsconfig.build.json && vite build",
+    "build": "node scripts/build.mjs",
     "build:examples": "vite build --config vite.examples.config.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.examples.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:package": "node scripts/test-package.mjs",
+    "test:browser": "playwright test",
+    "build:docs": "typedoc",
+    "verify": "npm run typecheck && npm test && npm run build && npm run build:examples",
+    "release:check": "node scripts/release-check.mjs",
+    "prepublishOnly": "npm run release:check && npm run verify && npm run build:docs && npm run test:package && npm run test:browser"
   },
   "peerDependencies": {
-    "@dimforge/rapier3d-compat": ">=0.19.0",
-    "three": ">=0.180.0",
+    "@dimforge/rapier3d-compat": "~0.21.0",
+    "three": "~0.186.1",
     "zod": "^4.0.0"
   },
   "peerDependenciesMeta": {
@@ -38,13 +47,27 @@
   },
   "devDependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",
+    "@playwright/test": "1.64.1",
     "@types/node": "26.6.5",
     "@types/three": "0.186.0",
     "happy-dom": "21.0.4",
     "three": "0.186.1",
+    "typedoc": "0.28.20",
     "typescript": "5.9.3",
     "vite": "8.3.3",
     "vitest": "5.0.5",
     "zod": "4.6.7"
-  }
+  },
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tunakite03/Oxygen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tunakite03/Oxygen/issues"
+  },
+  "engines": {
+    "node": ">=24 <27"
+  },
+  "private": true
 }

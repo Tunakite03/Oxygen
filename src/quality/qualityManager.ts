@@ -211,7 +211,4 @@ export class QualityManager<T extends QualityLevel> {
   }
 }
 
-/** True when the user asked the OS to reduce motion. */
-export function prefersReducedMotion(): boolean {
-  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
+export { prefersReducedMotion } from '../accessibility/motion';

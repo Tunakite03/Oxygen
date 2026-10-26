@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { ClothGeometry, PhysicsWorld, PointerTracker, VectorSpring, VerletWorld, createCloth, pointerToPlane } from '@tunn/oxygen';
+import { ClothGeometry, PointerTracker, VectorSpring, VerletWorld, createCloth, pointerToPlane } from '@tunn/oxygen';
+import { PhysicsWorld } from '@tunn/oxygen/physics';
 import { createExample, everyFrame } from '../shared/setup';
 
 const { pipeline, camera, gui, bloom } = createExample('Physics', { clearColor: '#0a0b0e' });

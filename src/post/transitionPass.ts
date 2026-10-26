@@ -1,5 +1,6 @@
+import { DisposedError } from '../core/errors';
 import * as THREE from 'three';
-import { tween } from '../core/tween';
+import { clearTween, tween } from '../core/tween';
 import { createFullscreenMaterial } from '../gl/fullscreen';
 import type { PostContext, PostPass } from './postStack';
 
@@ -91,6 +92,8 @@ export class TransitionPass implements PostPass {
   private readonly copy = createFullscreenMaterial('TransitionCapture', 'uniform sampler2D tDiffuse;\nin vec2 vUv;\nout vec4 FragColor;\nvoid main() { FragColor = texture(tDiffuse, vUv); }', { tDiffuse: { value: null } });
   private captureResolvers: (() => void)[] = [];
   private playId = 0;
+  private disposed = false;
+  private animation: { progress: number } | null = null;
 
   constructor(options: TransitionOptions = {}, name = 'transition') {
     this.name = name;
@@ -149,6 +152,8 @@ export class TransitionPass implements PostPass {
 
   /** Snapshots the next frame and holds it on screen (progress 0). Resolves once the snapshot is taken. */
   capture(): Promise<void> {
+    if (this.disposed) throw new DisposedError('TransitionPass');
+    if (this.animation) clearTween(this.animation);
     this.enabled = true;
     this.playId++;
     this.progress = 0;
@@ -157,14 +162,17 @@ export class TransitionPass implements PostPass {
 
   /** Animates progress to 1, then disables the pass. A newer `capture` or `play` cancels this one. */
   async play(durationMs: number, ease = 'easeInOutCubic'): Promise<void> {
+    if (this.disposed) throw new DisposedError('TransitionPass');
+    if (this.animation) clearTween(this.animation);
     const id = ++this.playId;
-    const state = { progress: this.progress };
+    const state = this.animation = { progress: this.progress };
     await tween(state, { progress: 1 }, durationMs, ease)
       .onUpdate(() => {
         if (id === this.playId) this.progress = state.progress;
       })
       .promise();
     if (id !== this.playId) return;
+    this.animation = null;
     this.progress = 1;
     this.enabled = false;
   }
@@ -187,6 +195,14 @@ export class TransitionPass implements PostPass {
   }
 
   dispose(): void {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.enabled = false;
+    this.playId++;
+    if (this.animation) clearTween(this.animation);
+    this.animation = null;
+    for (const resolve of this.captureResolvers) resolve();
+    this.captureResolvers = [];
     this.material.dispose();
     this.copy.dispose();
     this.snapshot.dispose();

@@ -1,3 +1,4 @@
+import { prefersReducedMotion, type MotionPurpose } from '../accessibility/motion';
 /**
  * Numeric property tweens with Penner eases and named CSS cubic-bezier eases. A tween starts on the next microtask
  * (so `onUpdate` / `onComplete` can be chained) and replaces earlier tweens on the same object, or only those on the
@@ -119,20 +120,15 @@ export class Tween<T extends object> {
   private completeCb: (() => void) | null = null;
   private resolveDone: (() => void) | null = null;
   private donePromise: Promise<void> | null = null;
+  private settled = false;
 
-  constructor(object: T, props: Record<string, number>, time: number, ease: string, delay: number) {
+  constructor(object: T, props: Record<string, number>, time: number, ease: string, delay: number, private readonly motion: MotionPurpose = 'decorative') {
     this.object = object;
     this.endValues = props;
     this.time = time;
     this.delay = delay;
     this.ease = getEase(ease || 'linear');
     this.propKey = Object.keys(props).sort().join(' ');
-    // Deferred so callers can chain onUpdate/onComplete first.
-    queueMicrotask(() => this.start());
-  }
-
-  private start(): void {
-    if (this.stopped) return;
     const multi = (this.object as TweenTarget).multiTween === true;
     const existing = byObject.get(this.object);
     if (existing) {
@@ -144,6 +140,12 @@ export class Tween<T extends object> {
       byObject.set(this.object, set);
     }
     set.add(this as Tween<object>);
+    // Register immediately for cancellation; defer value capture and execution for chaining.
+    queueMicrotask(() => this.start());
+  }
+
+  private start(): void {
+    if (this.stopped) return;
     const obj = this.object as Record<string, unknown>;
     for (const key of Object.keys(this.endValues)) {
       const v = obj[key];
@@ -156,8 +158,10 @@ export class Tween<T extends object> {
 
   /** Advances by `dt` ms; returns false once finished. */
   update(dt: number): boolean {
+    if (this.stopped) return false;
     if (this.paused || !this.started) return true;
-    this.elapsedMs += dt;
+    const reduced = this.motion === 'decorative' && prefersReducedMotion();
+    this.elapsedMs = reduced ? this.time : this.elapsedMs + dt;
     if (this.elapsedMs < 0) return true;
     const e = this.time <= 0 ? 1 : Math.min(this.elapsedMs / this.time, 1);
     const k = this.ease(e);
@@ -169,6 +173,7 @@ export class Tween<T extends object> {
     }
     this.updateCb?.(k);
     if (e >= 1) {
+      this.settled = true;
       this.completeCb?.();
       this.resolveDone?.();
       this.clear();
@@ -193,6 +198,7 @@ export class Tween<T extends object> {
   }
 
   promise(): Promise<void> {
+    if (this.settled) return Promise.resolve();
     if (!this.donePromise) this.donePromise = new Promise<void>((resolve) => (this.resolveDone = resolve));
     return this.donePromise;
   }
@@ -207,12 +213,14 @@ export class Tween<T extends object> {
 
   stop(): void {
     this.stopped = true;
+    this.settled = true;
+    this.resolveDone?.();
     this.clear();
   }
 }
 
-export function tween<T extends object>(object: T, props: NumericProps<T> | Record<string, number>, time: number, ease = 'linear', delay = 0): Tween<T> {
-  return new Tween(object, props as Record<string, number>, time, ease, delay);
+export function tween<T extends object>(object: T, props: NumericProps<T> | Record<string, number>, time: number, ease = 'linear', delay = 0, motion: MotionPurpose = 'decorative'): Tween<T> {
+  return new Tween(object, props as Record<string, number>, time, ease, delay, motion);
 }
 
 export function clearTween(object: object): void {

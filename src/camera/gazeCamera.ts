@@ -1,3 +1,4 @@
+import { prefersReducedMotion } from '../accessibility/motion';
 import * as THREE from 'three';
 import { lerp, lerpVec, range } from '../core/math';
 import { pointer, stage } from '../core/stage';
@@ -54,6 +55,17 @@ export class GazeCamera {
   }
 
   update(timeMs: number): void {
+    if (prefersReducedMotion()) {
+      this.camera.position.copy(this.position);
+      this.camera.position.z += this.zoomOffset;
+      this.inner.position.set(0, 0, 0);
+      this.inner.rotation.z = 0;
+      this.group.updateMatrixWorld(true);
+      this.camera.lookAt(this.inner.localToWorld(this._target.copy(this.lookAt)));
+      this.quat.setFromEuler(this.cameraRotation);
+      this.camera.quaternion.multiply(this.quat);
+      return;
+    }
     const moveX = stage.width ? range(pointer.x, 0, stage.width, -1, 1, true) : 0;
     const moveY = stage.height ? range(pointer.y, 0, stage.height, -1, 1, true) : 0;
     const s = this.strengthTween * this.strength;

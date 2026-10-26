@@ -1,7 +1,9 @@
+import { DisposedError } from '../core/errors';
+import { fetchBuffer } from '../core/net';
 import { onFrame } from '../core/loop';
 import { clamp, range } from '../core/math';
 import { device } from '../core/stage';
-import { tween } from '../core/tween';
+import { clearTween, tween } from '../core/tween';
 
 /**
  * Web Audio layer: a master/main gain pair that resumes on the first user gesture and ducks while the window is
@@ -57,6 +59,8 @@ export class AudioTrack {
   private offCheck: (() => void) | null = null;
   private readonly completeListeners = new Set<CompleteListener>();
   readonly fade = { value: 0 };
+  private disposed = false;
+  private readonly loading = new AbortController();
 
   constructor(
     readonly id: string,
@@ -67,17 +71,39 @@ export class AudioTrack {
     this.baseGain = options.baseGain ?? 1;
     this.gain = ctx.createGain();
     this.ready = (async () => {
-      const response = await fetch(url);
-      if (!response.ok) throw new AudioLoadError(id, url, `HTTP ${response.status}`);
-      const data = await response.arrayBuffer();
-      this.buffer = await ctx.decodeAudioData(data);
+      const data = await fetchBuffer(url, { signal: this.loading.signal });
+      const buffer = await ctx.decodeAudioData(data);
+      this.requireLive();
+      this.buffer = buffer;
       if (options.needsTrimming) {
         const { loopStart, loopEnd } = trimBounds(this.buffer);
         this.loopStart = loopStart + 0.05;
         this.loopEnd = loopEnd;
       }
       this.loaded = true;
-    })();
+    })().catch((error: unknown) => {
+      if (error instanceof DisposedError) throw error;
+      throw new AudioLoadError(id, url, error instanceof Error ? error.message : String(error));
+    });
+  }
+
+  private requireLive(): void {
+    if (this.disposed) throw new DisposedError(`AudioTrack ${this.id}`);
+  }
+
+  dispose(): void {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.loading.abort();
+    clearTween(this.fade);
+    this.offCheck?.();
+    this.offCheck = null;
+    this.removeSources();
+    this.gain.disconnect();
+    this.completeListeners.clear();
+    this.buffer = null;
+    this.loaded = false;
+    this.playing = false;
   }
 
   onComplete(cb: CompleteListener): () => void {
@@ -92,16 +118,16 @@ export class AudioTrack {
   private check = (): void => {
     if (!this.buffer) return;
     const current = this.currentTime;
-    const hasPlayedOnce = current >= (this.stopTo || this.buffer.duration);
-    const counter = Math.floor(current / this.buffer.duration);
-    if (!hasPlayedOnce) return;
-    for (const l of [...this.completeListeners]) l(this.id);
+    const loopEnd = this.loopEnd || this.buffer.duration;
+    const firstEnd = this.stopTo ?? loopEnd;
+    if (current < firstEnd) return;
+    const counter = 1 + Math.floor((current - firstEnd) / (loopEnd - this.loopStart));
     if (this.shouldLoop) {
-      if (counter !== this.loopCounter) {
-        this.loopCounter = counter;
-        this.startFrom = 0;
-      }
-    } else void this.stop({ duration: 0, clearTimeStamps: true });
+      if (counter === this.loopCounter) return;
+      this.loopCounter = counter;
+    }
+    for (const l of [...this.completeListeners]) l(this.id);
+    if (!this.shouldLoop) void this.stop({ duration: 0, clearTimeStamps: true });
   };
 
   private removeSources(): void {
@@ -113,6 +139,7 @@ export class AudioTrack {
   }
 
   async play(o: PlayOptions = {}): Promise<void> {
+    this.requireLive();
     const duration = o.duration ?? 500;
     const loop = o.loop ?? true;
     const playOnce = o.playOnce ?? false;
@@ -124,6 +151,7 @@ export class AudioTrack {
     if (playOnce && !allowSimultaneous) void this.stop({ duration: 0, clearTimeStamps: true });
     if (this.stopping && !allowSimultaneous) await this.stopping;
     if (!this.buffer) await this.ready;
+    this.requireLive();
     const buffer = this.buffer as AudioBuffer;
     this.startedAt = this.ctx.currentTime;
     if (o.startFrom) this.startFrom = o.startFrom;
@@ -149,14 +177,16 @@ export class AudioTrack {
       this.gain.gain.value = 0;
       this.gain.gain.setValueAtTime(volume, this.ctx.currentTime);
       this.gain.gain.linearRampToValueAtTime(volume, this.ctx.currentTime + duration / 1000);
-      await tween(this.fade, { value: volume }, duration, 'linear').promise();
+      await tween(this.fade, { value: volume }, duration, 'linear', 0, 'essential').promise();
       return;
     }
-    this.gain.gain.value = 1;
+    this.gain.gain.value = volume;
   }
 
   async stop({ duration = 0, clearTimeStamps = true }: { duration?: number; clearTimeStamps?: boolean } = {}): Promise<void> {
     if (this.stopping) await this.stopping;
+    if (this.disposed) return;
+    clearTween(this.fade);
     if (clearTimeStamps) {
       this.startedAt = 0;
       this.startFrom = 0;
@@ -171,7 +201,7 @@ export class AudioTrack {
     }
     this.gain.gain.setValueAtTime(this.gain.gain.value, this.ctx.currentTime);
     this.gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + duration / 1000);
-    this.stopping = tween(this.fade, { value: 0 }, duration, 'linear')
+    this.stopping = tween(this.fade, { value: 0 }, duration, 'linear', 0, 'essential')
       .onComplete(() => this.removeSources())
       .promise()
       .finally(() => (this.stopping = null));
@@ -207,6 +237,8 @@ export class EffectChain {
   readonly output: GainNode;
   private readonly wetGain: GainNode;
   private readonly dryGain: GainNode;
+  private readonly effectInput: GainNode;
+  private readonly effectOutput: GainNode;
   private wet = 1;
   private dry = 0;
   private overall = 1;
@@ -219,8 +251,8 @@ export class EffectChain {
   ) {
     this.input = ctx.createGain();
     this.output = ctx.createGain();
-    const effectInput = ctx.createGain();
-    const effectOutput = ctx.createGain();
+    const effectInput = this.effectInput = ctx.createGain();
+    const effectOutput = this.effectOutput = ctx.createGain();
     this.wetGain = ctx.createGain();
     this.dryGain = ctx.createGain();
     this.input.connect(this.dryGain);
@@ -248,6 +280,10 @@ export class EffectChain {
     effectOutput.connect(this.wetGain);
     this.wetGain.connect(this.output);
     this.mixWetDry(opts.mix ?? 1);
+  }
+
+  dispose(): void {
+    for (const node of [this.input, this.output, this.effectInput, this.effectOutput, this.wetGain, this.dryGain, this.filter, this.panner]) node?.disconnect();
   }
 
   mixWetDry(value: number): void {
@@ -295,6 +331,9 @@ export class AudioManager {
   private readonly chains = new Map<string, EffectChain>();
   private analyser: AnalyserNode | null = null;
   private frequencyData: Uint8Array<ArrayBuffer> | null = null;
+  private readonly events = new AbortController();
+  private disposed = false;
+  private closing: Promise<void> | null = null;
   muted = false;
   private readonly muteListeners = new Set<MuteListener>();
 
@@ -305,19 +344,44 @@ export class AudioManager {
     this.main = this.ctx.createGain();
     this.main.connect(this.master);
     for (const evt of ['auxclick', 'click', 'contextmenu', 'dblclick', 'keydown', 'keyup', 'mousedown', 'mouseup', 'touchend']) {
-      document.addEventListener(evt, () => void this.tryResume(), { capture: true, passive: true });
+      document.addEventListener(evt, () => void this.tryResume(), { capture: true, passive: true, signal: this.events.signal });
     }
-    window.addEventListener('blur', () => this.onVisibility(false));
-    window.addEventListener('focus', () => this.onVisibility(true));
+    window.addEventListener('blur', () => this.onVisibility(false), { signal: this.events.signal });
+    window.addEventListener('focus', () => this.onVisibility(true), { signal: this.events.signal });
+  }
+
+  private requireLive(): void {
+    if (this.disposed) throw new DisposedError('AudioManager');
+  }
+
+  /** Owns registered tracks and chains; closing also releases gesture listeners and pending waits. */
+  dispose(): Promise<void> {
+    if (this.closing) return this.closing;
+    this.disposed = true;
+    this.events.abort();
+    for (const track of this.pool.values()) track.dispose();
+    for (const chain of this.chains.values()) chain.dispose();
+    this.pool.clear();
+    this.chains.clear();
+    this.muteListeners.clear();
+    this.analyser?.disconnect();
+    this.analyser = null;
+    this.frequencyData = null;
+    this.main.disconnect();
+    this.master.disconnect();
+    if (instance === this) instance = null;
+    this.closing = this.ctx.state === 'closed' ? Promise.resolve() : this.ctx.close();
+    return this.closing;
   }
 
   private async tryResume(): Promise<void> {
-    if (this.ctx.state !== 'suspended') return;
+    if (this.disposed || this.ctx.state !== 'suspended') return;
     this.master.gain.cancelScheduledValues(this.ctx.currentTime);
     this.main.gain.cancelScheduledValues(this.ctx.currentTime);
     this.master.gain.value = 0;
     this.main.gain.value = 0;
     await this.ctx.resume();
+    if (this.disposed) return;
     this.master.gain.setTargetAtTime(1, this.ctx.currentTime + 0.4, 0.5);
     this.main.gain.setTargetAtTime(this.muted ? 0 : 1, this.ctx.currentTime + 0.4, 0.5);
   }
@@ -338,24 +402,35 @@ export class AudioManager {
   }
 
   waitRunning(): Promise<void> {
+    this.requireLive();
     if (this.ctx.state === 'running') return Promise.resolve();
-    return new Promise((resolve) => {
-      const off = onFrame(() => {
-        if (this.ctx.state === 'running') {
-          off();
-          resolve();
-        }
-      });
+    return new Promise((resolve, reject) => {
+      const cleanup = (): void => {
+        this.ctx.removeEventListener('statechange', check);
+        this.events.signal.removeEventListener('abort', abort);
+      };
+      const abort = (): void => { cleanup(); reject(new DisposedError('AudioManager')); };
+      const check = (): void => {
+        if (this.ctx.state === 'closed') abort();
+        else if (this.ctx.state === 'running') { cleanup(); resolve(); }
+      };
+      this.ctx.addEventListener('statechange', check);
+      this.events.signal.addEventListener('abort', abort, { once: true });
+      check();
     });
   }
 
   registerEffectChain(id: string, chain: EffectChain): void {
+    this.requireLive();
+    if (this.chains.has(id)) throw new Error(`Effect chain already registered: ${id}`);
     this.chains.set(id, chain);
     chain.output.connect(this.main);
   }
 
   /** Decodes `url` as track `id`, routed through effect chain `effectChainId` (else `general`, else the main gain). */
   registerAudio(id: string, url: string, options: { baseGain?: number; needsTrimming?: boolean; effectChainId?: string } = {}): Promise<void> {
+    this.requireLive();
+    if (this.pool.has(id)) throw new Error(`Audio already registered: ${id}`);
     const node = new AudioTrack(id, this.ctx, url, options);
     this.pool.set(id, node);
     const out = this.chains.get(options.effectChainId ?? 'general')?.input ?? this.main;
@@ -375,6 +450,7 @@ export class AudioManager {
   }
 
   requireAudio(id: string): AudioTrack {
+    this.requireLive();
     const node = this.pool.get(id);
     if (!node) throw new Error(`No audio registered with id ${id}`);
     return node;
@@ -390,11 +466,14 @@ export class AudioManager {
     return chain;
   }
 
-  onMute(cb: MuteListener): void {
+  onMute(cb: MuteListener): () => void {
+    this.requireLive();
     this.muteListeners.add(cb);
+    return () => { this.muteListeners.delete(cb); };
   }
 
   mute(bool: boolean, { duration = 0 }: { duration?: number } = {}): void {
+    this.requireLive();
     if (this.muted === bool) return;
     this.muted = bool;
     const target = bool ? 0 : 1;
@@ -425,6 +504,7 @@ export class AudioManager {
   }
 
   setupFrequencyAnalyzer(): void {
+    this.requireLive();
     if (this.analyser) return;
     this.analyser = this.ctx.createAnalyser();
     this.analyser.fftSize = 256;

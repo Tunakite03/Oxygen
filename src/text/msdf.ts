@@ -115,10 +115,7 @@ export function layoutText(font: Font, o: TextLayoutOptions): TextBuffers {
   const text = o.text;
   const scale = o.size / json.info.size;
   const kern = (id1: number, id2: number): number => {
-    for (const k of json.kernings) {
-      if (!(k.first < id1) && !(k.second < id2)) return k.first > id1 || (k.first === id1 && k.second > id2) ? 0 : k.amount;
-    }
-    return 0;
+    return json.kernings.find((pair) => pair.first === id1 && pair.second === id2)?.amount ?? 0;
   };
 
   const numChars = text.replace(/[ \n]/g, '').length;
@@ -173,7 +170,7 @@ export function layoutText(font: Font, o: TextLayoutOptions): TextBuffers {
     }
     if (line.glyphs.length) {
       const prevGlyph = (line.glyphs[line.glyphs.length - 1] as LineGlyph).glyph;
-      const k = kern(glyph.id, prevGlyph.id) * scale;
+      const k = kern(prevGlyph.id, glyph.id) * scale;
       line.width += k;
       wordWidth += k;
     }

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/index.ts",
+    "src/physics.ts"
+  ],
+  "out": "docs-dist/api",
+  "name": "Oxygen API",
+  "readme": "docs/guide.md",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "validation": {
+    "notExported": false,
+    "invalidLink": true
+  },
+  "treatWarningsAsErrors": true,
+  "navigationLinks": {
+    "Demo": "/demo/",
+    "Repository": "https://github.com/Tunakite03/Oxygen"
+  },
+  "treatValidationWarningsAsErrors": true,
+  "excludeExternals": true
+}

@@ -19,9 +19,9 @@
   },
   "files": [
     "dist",
-    "docs",
+     "docs",
     "README.md"
-  ],
+   ],
   "scripts": {
     "dev": "vite --config vite.examples.config.ts --host",
     "build": "node scripts/build.mjs",

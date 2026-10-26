@@ -25,8 +25,15 @@ Peer dependencies: `three` (~0.186.1), `zod` (4.x) and, optionally, `@dimforge/r
 imported on demand by `PhysicsWorld.create`. three's `basis_transcoder` files are needed for KTX2 and Google's Draco
 decoder (`draco_wasm_wrapper.js`, `draco_decoder.wasm`) for `.bin` geometry.
 
-Until the package is published, build it (`npm run build`) and depend on the folder, or alias `@tunn/oxygen` to
-`src/index.ts` in your bundler.
+Until the package is published, depend on the repository pinned to a commit. npm clones it, installs its dev
+dependencies and runs the `prepare` script, which builds `dist/`:
+
+```json
+"dependencies": { "@tunn/oxygen": "git+https://github.com/Tunakite03/Oxygen.git#<commit>" }
+```
+
+The repository is private, so the machine running `npm install` needs git credentials for it. For engine work against
+a site, `npm link` a local checkout, or alias `@tunn/oxygen` to `src/index.ts` in your bundler.
 
 ## Quick start
 

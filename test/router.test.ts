@@ -167,6 +167,22 @@ describe('Router', () => {
     expect(withFallback.resolve('/nope').name).toBe('404');
   });
 
+  it('treats a malformed percent-escape as unmatched instead of throwing URIError', async () => {
+    const plain = new Router({ routes: [{ name: 'home', path: '/', view: () => ({ enter: () => undefined }) }] });
+    expect(() => plain.resolve('/work/%E0%A4%A')).toThrow(RouteNotFoundError);
+    const withFallback = new Router({ routes: [], notFound: { name: '404', path: '/', view: () => ({ enter: () => undefined }) } });
+    expect(withFallback.resolve('/work/%E0%A4%A')).toMatchObject({ name: '404', path: '/work/%E0%A4%A' });
+
+    router = new Router({ routes: [{ name: 'home', path: '/', view: () => ({ enter: () => undefined }) }] });
+    await router.start();
+    const anchor = document.createElement('a');
+    anchor.setAttribute('href', '/work/%E0%A4%A');
+    document.body.appendChild(anchor);
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+    expect(() => anchor.dispatchEvent(click)).not.toThrow();
+    expect(click.defaultPrevented).toBe(false);
+  });
+
   it('intercepts plain same-origin links only', async () => {
     router = new Router({
       routes: [

@@ -107,14 +107,29 @@ describe('geometry attribute round trips', () => {
 describe('texture rejection cleanup', () => {
   it('settles failed bitmap loads without an unhandled rejection', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.spyOn(THREE.ImageBitmapLoader.prototype, 'load').mockImplementation(function (url, _onLoad, _onProgress, onError) {
-      queueMicrotask(() => onError?.(new Error(`Failed ${url}`)));
-    });
+    vi.stubGlobal('fetch', vi.fn(async (): Promise<Response> => new Response(null, { status: 404 })));
     getTexture('/failed-regression.png');
     await expect(pendingTextureLoads()).resolves.toMatchObject([{ status: 'rejected' }]);
     // Give the runtime an event-loop turn to report any orphaned rejection to Vitest.
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
     await expect(pendingTextureLoads()).resolves.toEqual([]);
+  });
+
+  it('evicts a failed texture so the next request downloads it again', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const bitmap = { width: 1, height: 1, close: (): void => {} } as unknown as ImageBitmap;
+    const fetchMock = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(null, { status: 404 }))
+      .mockResolvedValueOnce(new Response(new ArrayBuffer(4)));
+    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal('createImageBitmap', vi.fn(async (): Promise<ImageBitmap> => bitmap));
+    const failed = getTexture('/retry-regression.png');
+    await pendingTextureLoads();
+    const retried = getTexture('/retry-regression.png');
+    expect(retried).not.toBe(failed);
+    await pendingTextureLoads();
+    expect(retried.image).toBe(bitmap);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('preserves the KTX2 rejection for callers without an orphaned rejection', async () => {

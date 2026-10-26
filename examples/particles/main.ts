@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { GPUParticles, PointerTracker, pointerToPlane } from '@tunn/oxygen';
+import { GPUParticles, PointerTracker, pointerToPlane, prefersReducedMotion, setMotionPreference } from '@tunn/oxygen';
+import type { MotionPreference } from '@tunn/oxygen';
 import { createExample, everyFrame } from '../shared/setup';
 
 const { pipeline, camera, gui, quality, bloom } = createExample('GPU particles', { clearColor: '#040406' });
@@ -20,14 +21,25 @@ const particles = new GPUParticles(pipeline.renderer, {
 });
 pipeline.scene.add(particles.object);
 
-const pointer = new PointerTracker(window);
+const pointer = new PointerTracker(pipeline.renderer.domElement);
 const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 const target = new THREE.Vector3();
 particles.attractor.radius = 2.5;
 
 const params = { attract: 6, repel: -14 };
+const status = document.querySelector<HTMLElement>('[role="status"]');
+if (!status) throw new Error('Particle example needs a motion status element');
+let motionPreference: MotionPreference = 'system';
+const motion = {
+  get preference(): MotionPreference { return motionPreference; },
+  set preference(value: MotionPreference) {
+    setMotionPreference(value);
+    motionPreference = value;
+  },
+};
 const folder = gui.addFolder('Particles');
 folder.addMonitor('count', () => particles.count.toLocaleString('en-US'));
+folder.addSelect(motion, 'preference', ['system', 'reduce', 'full'], { label: 'motion' });
 folder.addNumber(particles, 'timeScale', { label: 'time scale', min: 0, max: 3, step: 0.01 });
 folder.addNumber(particles.attractor, 'radius', { label: 'pointer radius', min: 0.1, max: 6, step: 0.01 });
 folder.addNumber(params, 'attract', { min: 0, max: 30, step: 0.1 });
@@ -41,6 +53,12 @@ folder.addColor(particles.material.uniforms.colorStart?.value as THREE.Color, 'b
 folder.addColor(particles.material.uniforms.colorEnd?.value as THREE.Color, 'death');
 
 everyFrame((delta) => {
+  const message = prefersReducedMotion()
+    ? 'Paused: reduced motion is enabled. Choose motion → full to run the simulation.'
+    : particles.timeScale === 0
+      ? 'Paused: time scale is 0. Increase time scale to resume.'
+      : 'Simulation running. Move the pointer over the scene to attract; hold to repel.';
+  if (status.textContent !== message) status.textContent = message;
   pointer.update(delta);
   if (pointer.inside && pointerToPlane(pointer.ndc, camera, plane, target)) {
     particles.attractor.position.copy(target);

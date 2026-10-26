@@ -12,6 +12,8 @@ declare global {
 }
 
 test('previews every transition with an explicit motion override and follows live system preferences', async ({ page }) => {
+  // Software GL (SwiftShader) on CI renders each frame in software, so every transition wait takes longer than the global budget.
+  test.setTimeout(90000);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });

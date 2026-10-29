@@ -3,7 +3,7 @@
 Pick a starting quality from the GPU, then let real frame times move it.
 
 ```ts
-import { QualityManager, detectGPU } from '@tunn/oxygen';
+import { QualityManager, detectGPU } from '@tunakite03/oxygen';
 
 const levels = [
   { name: 'low', dpr: 1, particles: 32_768, bloom: false },

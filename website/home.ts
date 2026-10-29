@@ -19,7 +19,7 @@ import {
   setRenderFunction,
   startLoop,
   stopLoop,
-} from '@tunn/oxygen';
+} from '@tunakite03/oxygen';
 import { getLanguage, onLanguageChange, requireElement } from './shared/site';
 
 // DOM Element Bindings
@@ -417,7 +417,7 @@ if (!pipeline) {
 <span class="code-keyword">import</span> {
   createPipeline, PostStack, BloomPass,
   ColorGradePass, onFrame, startLoop,
-} <span class="code-keyword">from</span> <span class="code-string">'@tunn/oxygen'</span>;
+} <span class="code-keyword">from</span> <span class="code-string">'@tunakite03/oxygen'</span>;
 
 <span class="code-comment">// 1. Initialize deterministic engine loop</span>
 startLoop();
@@ -453,7 +453,7 @@ onFrame((_time, delta) =&gt; {
 <span class="code-keyword">import</span> {
   createPipeline, GPUParticles, PointerTracker,
   pointerToPlane, onFrame,
-} <span class="code-keyword">from</span> <span class="code-string">'@tunn/oxygen'</span>;
+} <span class="code-keyword">from</span> <span class="code-string">'@tunakite03/oxygen'</span>;
 
 <span class="code-keyword">const</span> pipeline = createPipeline(host, { hdr: <span class="code-keyword">true</span> });
 <span class="code-keyword">const</span> camera = <span class="code-keyword">new</span> THREE.PerspectiveCamera(<span class="code-number">50</span>, <span class="code-number">1</span>, <span class="code-number">0.1</span>, <span class="code-number">100</span>);
@@ -490,7 +490,7 @@ onFrame((_time, delta) =&gt; {
     springs: {
       filename: 'elastic-springs.ts',
       code: `<span class="code-keyword">import</span> * <span class="code-keyword">as</span> THREE <span class="code-keyword">from</span> <span class="code-string">'three'</span>;
-<span class="code-keyword">import</span> { VectorSpring, Spring, onFrame } <span class="code-keyword">from</span> <span class="code-string">'@tunn/oxygen'</span>;
+<span class="code-keyword">import</span> { VectorSpring, Spring, onFrame } <span class="code-keyword">from</span> <span class="code-string">'@tunakite03/oxygen'</span>;
 
 <span class="code-comment">// Closed-form analytical spring for rotation</span>
 <span class="code-keyword">const</span> targetRotation = <span class="code-keyword">new</span> THREE.Vector3();
@@ -522,7 +522,7 @@ onFrame((_time, delta) =&gt; {
     },
     story: {
       filename: 'scroll-story.ts',
-      code: `<span class="code-keyword">import</span> { ScrollStory, StoryScene, onFrame } <span class="code-keyword">from</span> <span class="code-string">'@tunn/oxygen'</span>;
+      code: `<span class="code-keyword">import</span> { ScrollStory, StoryScene, onFrame } <span class="code-keyword">from</span> <span class="code-string">'@tunakite03/oxygen'</span>;
 
 <span class="code-comment">// Compose multi-chapter scroll-driven 3D story</span>
 <span class="code-keyword">const</span> story = <span class="code-keyword">new</span> ScrollStory({

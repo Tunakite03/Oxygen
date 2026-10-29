@@ -63,12 +63,12 @@
           <h1><span lang="en">API reference</span><span lang="vi">Tài liệu API</span></h1>
           <p class="lead">
             <span lang="en">
-              <code>@tunn/oxygen</code> is a WebGL 2 engine for creative sites, built on three.js. Each section lists the
+              <code>@tunakite03/oxygen</code> is a WebGL 2 engine for creative sites, built on three.js. Each section lists the
               public exports of one area, shows how they fit together and, where it matters, runs a live demo against the
               real engine. Deeper guides live in <code>docs/</code> in the repository.
             </span>
             <span lang="vi">
-              <code>@tunn/oxygen</code> là engine WebGL 2 cho các trang web sáng tạo, xây trên three.js. Mỗi mục liệt kê
+              <code>@tunakite03/oxygen</code> là engine WebGL 2 cho các trang web sáng tạo, xây trên three.js. Mỗi mục liệt kê
               export công khai của một khu vực, cho thấy các phần kết hợp với nhau và, khi cần, chạy demo trực tiếp trên
               engine thật. Hướng dẫn chi tiết hơn nằm trong <code>docs/</code> của repository.
             </span>
@@ -111,16 +111,16 @@
               </tr>
             </tbody>
           </table>
-          <pre><code>npm install @tunn/oxygen three zod
+          <pre><code>npm install @tunakite03/oxygen three zod
 npm install @dimforge/rapier3d-compat   # only for PhysicsWorld</code></pre>
           <p class="callout">
             <span lang="en">
               The package is not on npm yet. Depend on the repository pinned to a commit, as described in the README. Rigid
-              body physics is imported from <code>@tunn/oxygen/physics</code>; everything else comes from the root entry.
+              body physics is imported from <code>@tunakite03/oxygen/physics</code>; everything else comes from the root entry.
             </span>
             <span lang="vi">
               Gói chưa có trên npm. Hãy phụ thuộc vào repository được ghim theo commit, như mô tả trong README. Vật lý rigid
-              body được import từ <code>@tunn/oxygen/physics</code>; mọi thứ còn lại lấy từ root entry.
+              body được import từ <code>@tunakite03/oxygen/physics</code>; mọi thứ còn lại lấy từ root entry.
             </span>
           </p>
         </section>
@@ -141,7 +141,7 @@ npm install @dimforge/rapier3d-compat   # only for PhysicsWorld</code></pre>
 import {
   BloomPass, ColorGradePass, PostStack, QualityManager, createPipeline, detectGPU, onFrame, onResize,
   setRenderFunction, stage, startLoop,
-} from '@tunn/oxygen';
+} from '@tunakite03/oxygen';
 
 startLoop();
 const pipeline = createPipeline(document.querySelector&lt;HTMLElement&gt;('.stage')!, { hdr: true });
@@ -742,13 +742,13 @@ const material = createShaderMaterial('Gradient', { uAlpha: { value: 0 } }, { tr
               </tr>
               <tr>
                 <td><code>PhysicsWorld</code></td>
-                <td><code>@tunn/oxygen/physics</code></td>
+                <td><code>@tunakite03/oxygen/physics</code></td>
                 <td><span lang="en">Rapier rigid bodies. Requires <code>@dimforge/rapier3d-compat</code>.</span><span lang="vi">Rigid body Rapier. Cần <code>@dimforge/rapier3d-compat</code>.</span></td>
               </tr>
             </tbody>
           </table>
-          <pre><code>import { PhysicsWorld } from '@tunn/oxygen/physics';
-import { Spring } from '@tunn/oxygen';</code></pre>
+          <pre><code>import { PhysicsWorld } from '@tunakite03/oxygen/physics';
+import { Spring } from '@tunakite03/oxygen';</code></pre>
           <p>
             <span lang="en">Reference: <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/physics.md">docs/physics.md</a>. Live example: <a href="../physics/">physics demo</a>.</span>
             <span lang="vi">Tài liệu tham chiếu: <a href="https://github.com/Tunakite03/Oxygen/blob/main/docs/physics.md">docs/physics.md</a>. Ví dụ trực tiếp: <a href="../physics/">demo vật lý</a>.</span>

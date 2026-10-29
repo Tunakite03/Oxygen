@@ -6,7 +6,7 @@ A small tuning panel built on native, labelled inputs (keyboard and screen-reade
 backquote key.
 
 ```ts
-import { DebugGUI, PerfMonitor, debugEnabled } from '@tunn/oxygen';
+import { DebugGUI, PerfMonitor, debugEnabled } from '@tunakite03/oxygen';
 
 if (debugEnabled()) {                                   // true when the URL has ?debug
   const gui = new DebugGUI({ title: 'Studio', storageKey: 'studio-debug' });

@@ -1,5 +1,5 @@
 {
-  "name": "@tunn/oxygen",
+  "name": "@tunakite03/oxygen",
   "version": "0.3.0-beta.1",
   "description": "Oxygen: a WebGL engine for creative sites on three.js. Frame loop, tweens, asset loading, shader library, render pipeline with GPU warm-up, scroll stories, post-processing, GPU particles, physics, routing with page transitions, adaptive quality, pointer input, Web Audio and a debug GUI.",
   "type": "module",

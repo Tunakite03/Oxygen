@@ -22,7 +22,7 @@ try {
   }));
   run('npm', ['install', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund']);
   if (existsSync(join(directory, 'node_modules/@dimforge/rapier3d-compat'))) throw new Error('Optional Rapier was pulled into the core consumer');
-  run(process.execPath, ['--input-type=module', '-e', "const oxygen = await import('@tunn/oxygen'); if (typeof oxygen.createPipeline !== 'function' || typeof window !== 'undefined') throw Error('SSR import failed');"]);
+  run(process.execPath, ['--input-type=module', '-e', "const oxygen = await import('@tunakite03/oxygen'); if (typeof oxygen.createPipeline !== 'function' || typeof window !== 'undefined') throw Error('SSR import failed');"]);
   const consumer = JSON.parse(readFileSync(join(directory, 'package.json'), 'utf8'));
   consumer.devDependencies = { typescript: pkg.devDependencies.typescript, vite: pkg.devDependencies.vite, '@types/three': pkg.devDependencies['@types/three'] };
   writeFileSync(join(directory, 'package.json'), JSON.stringify(consumer));
@@ -31,7 +31,7 @@ try {
   // Remove it from this isolated fixture to prove Oxygen core declarations do not require it.
   rmSync(join(directory, 'node_modules/@dimforge'), { recursive: true, force: true });
   writeFileSync(join(directory, 'index.html'), '<!doctype html><html lang="en"><title>Oxygen package consumer</title><body><main id="host" style="width:320px;height:200px;position:relative"></main><script type="module" src="/main.ts"></script></body></html>');
-  writeFileSync(join(directory, 'main.ts'), `import { createPipeline, GLTFAssets, stopLoop } from '@tunn/oxygen';
+  writeFileSync(join(directory, 'main.ts'), `import { createPipeline, GLTFAssets, stopLoop } from '@tunakite03/oxygen';
 import { PerspectiveCamera, Mesh, BoxGeometry, MeshBasicMaterial } from 'three';
 const host = document.getElementById('host');
 if (!host) throw Error('Missing host');

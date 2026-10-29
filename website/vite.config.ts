@@ -37,8 +37,8 @@ export default defineConfig({
   base: './',
   plugins: [siteLayout()],
   resolve: { alias: [
-    { find: '@tunn/oxygen/physics', replacement: resolve(root, '../src/physics.ts') },
-    { find: '@tunn/oxygen', replacement: resolve(root, '../src/index.ts') },
+    { find: '@tunakite03/oxygen/physics', replacement: resolve(root, '../src/physics.ts') },
+    { find: '@tunakite03/oxygen', replacement: resolve(root, '../src/index.ts') },
   ] },
   build: {
     target: 'es2022',

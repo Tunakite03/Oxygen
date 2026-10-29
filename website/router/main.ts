@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Router, TransitionPass, delay, onMotionChange, prefersReducedMotion, setMotionPreference } from '@tunn/oxygen';
-import type { MotionPreference, RouteMatch, RouteView, TransitionEffect } from '@tunn/oxygen';
+import { Router, TransitionPass, delay, onMotionChange, prefersReducedMotion, setMotionPreference } from '@tunakite03/oxygen';
+import type { MotionPreference, RouteMatch, RouteView, TransitionEffect } from '@tunakite03/oxygen';
 import { createExample, everyFrame } from '../shared/setup';
 
 const { pipeline, camera, post, gui } = createExample('Page transitions');

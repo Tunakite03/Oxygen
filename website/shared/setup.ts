@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import {
   BloomPass, ColorGradePass, DebugGUI, FXAAPass, LensPass, PerfMonitor, PostStack, QualityManager, createPipeline,
   detectGPU, onFrame, onResize, setRenderFunction, stage, startLoop,
-} from '@tunn/oxygen';
-import type { Pipeline, QualityLevel } from '@tunn/oxygen';
+} from '@tunakite03/oxygen';
+import type { Pipeline, QualityLevel } from '@tunakite03/oxygen';
 
 /**
  * Shared example bootstrap: HDR pipeline, a perspective camera kept at the viewport aspect, the standard post stack

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createAccessiblePipeline, disposeStage, GLTFAssets, onFrame, onMotionChange, prefersReducedMotion, setMotionPreference, setRenderFunction, startLoop, stopLoop, type AccessiblePipeline, type GLTFAsset } from '@tunn/oxygen';
+import { createAccessiblePipeline, disposeStage, GLTFAssets, onFrame, onMotionChange, prefersReducedMotion, setMotionPreference, setRenderFunction, startLoop, stopLoop, type AccessiblePipeline, type GLTFAsset } from '@tunakite03/oxygen';
 
 function element<T extends HTMLElement>(id: string): T {
   const result = document.getElementById(id);

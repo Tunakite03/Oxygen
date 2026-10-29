@@ -5,7 +5,7 @@ and writes the next; two ping-pong targets carry intermediate frames and the las
 canvas, so N passes cost N draws. With every pass disabled the scene buffer is copied.
 
 ```ts
-import { BloomPass, ColorGradePass, FXAAPass, LensPass, PostStack, createPipeline } from '@tunn/oxygen';
+import { BloomPass, ColorGradePass, FXAAPass, LensPass, PostStack, createPipeline } from '@tunakite03/oxygen';
 
 const pipeline = createPipeline(container, { hdr: true }); // half-float scene buffer keeps values above 1.0
 const post = new PostStack(pipeline.renderer);

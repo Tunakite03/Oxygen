@@ -1,5 +1,5 @@
 /**
- * @tunn/oxygen: a WebGL engine for creative sites on three.js.
+ * @tunakite03/oxygen: a WebGL engine for creative sites on three.js.
  *
  * core      frame loop with phases, event bus + state store, tweens and eases, components, viewport/pointer, fetch, RNG
  * assets    texture cache (bitmaps, KTX2), Draco / JSON geometry, skeletal animation, key/value scene config, progress

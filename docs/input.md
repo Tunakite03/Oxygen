@@ -5,7 +5,7 @@
 One primary pointer (mouse, pen or touch through Pointer Events), relative to an element or the window.
 
 ```ts
-import { PointerTracker, pointerToPlane } from '@tunn/oxygen';
+import { PointerTracker, pointerToPlane } from '@tunakite03/oxygen';
 
 const pointer = new PointerTracker(canvas, { follow: 0.15, dragThreshold: 6, tapMaxMs: 300 });
 pointer.on('tap', (p) => select(p));

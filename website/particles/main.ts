@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { GPUParticles, PointerTracker, pointerToPlane, prefersReducedMotion, setMotionPreference } from '@tunn/oxygen';
-import type { MotionPreference } from '@tunn/oxygen';
+import { GPUParticles, PointerTracker, pointerToPlane, prefersReducedMotion, setMotionPreference } from '@tunakite03/oxygen';
+import type { MotionPreference } from '@tunakite03/oxygen';
 import { createExample, everyFrame } from '../shared/setup';
 
 const { pipeline, camera, gui, quality, bloom } = createExample('GPU particles', { clearColor: '#040406' });

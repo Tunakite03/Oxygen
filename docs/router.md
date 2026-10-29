@@ -4,7 +4,7 @@
 (`mode: 'history'`, real paths) or `#/path` hashes (`mode: 'hash'`, for static hosting without rewrites).
 
 ```ts
-import { Router } from '@tunn/oxygen';
+import { Router } from '@tunakite03/oxygen';
 
 const router = new Router({
   mode: 'history',

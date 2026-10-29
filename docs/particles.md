@@ -5,7 +5,7 @@ velocities are two RGBA textures advanced by `GPUSimulation`, so hundreds of tho
 full-screen passes and one draw per frame.
 
 ```ts
-import { GPUParticles, onFrame } from '@tunn/oxygen';
+import { GPUParticles, onFrame } from '@tunakite03/oxygen';
 
 const particles = new GPUParticles(pipeline.renderer, {
   count: 131_072,
@@ -52,7 +52,7 @@ WebGL 2 with renderable float (`EXT_color_buffer_float`) or half-float targets. 
 all variables from the previous step's textures and then swaps.
 
 ```ts
-import { GPUSimulation, onFrame } from '@tunn/oxygen';
+import { GPUSimulation, onFrame } from '@tunakite03/oxygen';
 
 const sim = new GPUSimulation(renderer, 256, 256);
 sim.addVariable({

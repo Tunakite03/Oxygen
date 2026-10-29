@@ -3,7 +3,7 @@ import { onLanguageChange } from '../shared/site';
 import {
   PointerTracker, bindState, createPipeline, dom, emit, listen, onFrame, setMotionPreference, setRenderFunction, setState,
   startLoop, tween,
-} from '@tunn/oxygen';
+} from '@tunakite03/oxygen';
 
 type Lang = 'en' | 'vi';
 type MotionOption = 'system' | 'reduce' | 'full';

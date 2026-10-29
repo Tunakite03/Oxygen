@@ -21,8 +21,8 @@ Install the generated tarball in a separate application together with `three@~0.
 Core imports do not include rigid-body physics:
 
 ```ts
-import { createAccessiblePipeline, GLTFAssets } from '@tunn/oxygen';
-import { PhysicsWorld } from '@tunn/oxygen/physics';
+import { createAccessiblePipeline, GLTFAssets } from '@tunakite03/oxygen';
+import { PhysicsWorld } from '@tunakite03/oxygen/physics';
 ```
 
 Only applications using the second entry need `@dimforge/rapier3d-compat@~0.21.0`. Spring and Verlet utilities remain in the root entry. Oxygen ships ESM JavaScript and declarations; CommonJS `require()` is not a supported contract.
@@ -89,11 +89,11 @@ An asset handle owns every scene in its glTF. Do not dispose a handle while anot
 
 CI checks Node 24 and 26: typecheck, unit/regression tests, engine/demo builds, generated API, isolated package consumption and real Chromium integration. Local verification is evidence only for the runtime/browser actually run; remote matrix jobs must pass after pushing.
 
-For the manual npm workflow, configure npm trusted publishing for repository `Tunakite03/Oxygen`, workflow `release.yml`, and GitHub environment `npm`. The workflow uses GitHub OIDC and provenance, not a stored npm token, and publishes with public access to the `latest` tag. The current version is a beta, so an unqualified `npm install @tunn/oxygen` selects a prerelease after publication. Initial package creation, npm namespace ownership, trusted-publisher setup, and GitHub environment protection are account-owner prerequisites. Verify publication with `npm view @tunn/oxygen version`.
+For the manual npm workflow, configure npm trusted publishing for repository `Tunakite03/Oxygen`, workflow `release.yml`, and GitHub environment `npm`. The workflow uses GitHub OIDC and provenance, not a stored npm token, and publishes with public access to the `latest` tag. The current version is a beta, so an unqualified `npm install @tunakite03/oxygen` selects a prerelease after publication. Initial package creation, npm namespace ownership, trusted-publisher setup, and GitHub environment protection are account-owner prerequisites. Verify publication with `npm view @tunakite03/oxygen version`.
 
 ## Migration from 0.2
 
-1. Import `PhysicsWorld` and other rigid-body types from `@tunn/oxygen/physics`; install its optional peer when using that entry.
+1. Import `PhysicsWorld` and other rigid-body types from `@tunakite03/oxygen/physics`; install its optional peer when using that entry.
 2. Use the tested Three/Rapier minor versions listed above instead of assuming unrestricted future versions are compatible.
 3. Start stage/loop explicitly in the browser. Root import no longer installs pointer/resize listeners.
 4. Retain cleanup functions and dispose owned resources on unmount. Do not render a disposed pipeline.

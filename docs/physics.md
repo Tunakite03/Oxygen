@@ -14,7 +14,7 @@ Damped springs solved in closed form, so a step of any length lands where the co
 identical at 30, 60 or 144 Hz and a long frame cannot make it explode.
 
 ```ts
-import { Spring, VectorSpring } from '@tunn/oxygen';
+import { Spring, VectorSpring } from '@tunakite03/oxygen';
 
 const scale = new Spring(1, { frequency: 3.5, damping: 0.35 }); // Hz, damping ratio
 scale.target = 1.4;
@@ -32,7 +32,7 @@ Position-based dynamics on a fixed timestep (default 1/120 s, at most 8 steps pe
 `iterations` times per step; more iterations make stiffer material.
 
 ```ts
-import { ClothGeometry, VerletWorld, createCloth } from '@tunn/oxygen';
+import { ClothGeometry, VerletWorld, createCloth } from '@tunakite03/oxygen';
 
 const world = new VerletWorld({ gravity: [0, -9.81, 0], iterations: 12, drag: 0.6, particleRadius: 0.03 });
 const cloth = createCloth(world, { origin: [-1, 2, 0], width: 2, height: 1.6, segmentsX: 30, segmentsY: 24, pin: 'top' });
@@ -64,7 +64,7 @@ npm install @dimforge/rapier3d-compat
 ```
 
 ```ts
-import { PhysicsWorld } from '@tunn/oxygen/physics';
+import { PhysicsWorld } from '@tunakite03/oxygen/physics';
 
 const physics = await PhysicsWorld.create({ gravity: [0, -9.81, 0] }); // imports and initialises Rapier
 physics.add(floor, { type: 'fixed', friction: 0.8 });

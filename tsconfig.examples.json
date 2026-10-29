@@ -3,7 +3,7 @@
   "compilerOptions": {
     "types": ["node", "vite/client"],
     "allowImportingTsExtensions": true,
-    "paths": { "@tunn/oxygen": ["./src/index.ts"], "@tunn/oxygen/physics": ["./src/physics.ts"] }
+    "paths": { "@tunakite03/oxygen": ["./src/index.ts"], "@tunakite03/oxygen/physics": ["./src/physics.ts"] }
   },
   "include": ["website", "vite.examples.config.ts"]
 }

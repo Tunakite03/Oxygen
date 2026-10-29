@@ -1,6 +1,6 @@
 # Oxygen
 
-`@tunn/oxygen` is a WebGL engine for creative, award-style sites on three.js. It started as the scroll-story engine of
+`@tunakite03/oxygen` is a WebGL engine for creative, award-style sites on three.js. It started as the scroll-story engine of
 a site rebuild and grew into a toolkit: a frame loop with ordered phases, tweens, asset loading with GPU warm-up, a
 named GLSL library, a render pipeline, scroll stories, a post-processing stack, GPU particles, physics, a router with
 page transitions, adaptive quality, pointer input, Web Audio and a debug panel.
@@ -12,14 +12,14 @@ projects supply their own content on top of it.
 
 Version 0.3.0-beta.1 is a beta release. Oxygen is available under the [MIT License](LICENSE). See the [integration and migration guide](docs/guide.md) for ownership, SSR imports, accessibility, GLB/glTF, CI and release requirements. Generate the API with `npm run build:docs`; the embedded-scene demo covers mount/unmount and fallback behavior.
 
-Rigid-body physics is now imported from `@tunn/oxygen/physics`; other utilities remain in the root entry.
+Rigid-body physics is now imported from `@tunakite03/oxygen/physics`; other utilities remain in the root entry.
 
 ## Install
 
 After the package is published to npm, install it and its required peers with:
 
 ```sh
-npm install @tunn/oxygen three zod
+npm install @tunakite03/oxygen three zod
 npm install @dimforge/rapier3d-compat   # only for PhysicsWorld (rigid bodies)
 ```
 
@@ -33,10 +33,10 @@ Until the package is published, depend on the repository pinned to a commit. npm
 dependencies and runs the `prepare` script, which builds `dist/`:
 
 ```json
-"dependencies": { "@tunn/oxygen": "git+https://github.com/Tunakite03/Oxygen.git#<commit>" }
+"dependencies": { "@tunakite03/oxygen": "git+https://github.com/Tunakite03/Oxygen.git#<commit>" }
 ```
 
-For engine work against a site, `npm link` a local checkout, or alias `@tunn/oxygen` to `src/index.ts` in your bundler.
+For engine work against a site, `npm link` a local checkout, or alias `@tunakite03/oxygen` to `src/index.ts` in your bundler.
 
 ## Quick start
 
@@ -47,7 +47,7 @@ import * as THREE from 'three';
 import {
   BloomPass, ColorGradePass, PostStack, QualityManager, createPipeline, detectGPU, onFrame, onResize,
   setRenderFunction, stage, startLoop,
-} from '@tunn/oxygen';
+} from '@tunakite03/oxygen';
 
 startLoop();
 const pipeline = createPipeline(document.querySelector<HTMLElement>('.stage')!, { hdr: true });
@@ -84,7 +84,7 @@ import * as THREE from 'three';
 import {
   ScrollStory, StoryScene, createLoadProgress, createPipeline, createShaderMaterial, emit, initTextures,
   loadShaderLibrary, pendingTextureLoads, setRenderFunction, startLoop,
-} from '@tunn/oxygen';
+} from '@tunakite03/oxygen';
 
 class IntroScene extends StoryScene {
   constructor() {

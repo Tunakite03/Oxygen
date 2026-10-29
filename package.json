@@ -62,7 +62,7 @@
     "vitest": "5.0.5",
     "zod": "4.6.7"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Tunakite03/Oxygen.git"

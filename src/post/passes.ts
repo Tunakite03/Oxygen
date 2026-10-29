@@ -430,3 +430,5 @@ export class LensPass extends ShaderPass {
     this.uniform<number>('grain').value = v;
   }
 }
+
+export * from './volumetricLightPass';

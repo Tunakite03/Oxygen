@@ -10,7 +10,7 @@ projects supply their own content on top of it.
 
 ## Integration status
 
-Version 0.3.0-beta.0 is prepared for local package testing. Public npm release remains blocked (`private: true`, `UNLICENSED`) until the owner selects a license. See the [integration and migration guide](docs/guide.md) for ownership, SSR imports, accessibility, GLB/glTF, CI and release requirements. Generate the API with `npm run build:docs`; the embedded-scene demo covers mount/unmount and fallback behavior.
+Version 0.3.0-beta.0 is prepared for local package testing. Oxygen is available under the [MIT License](LICENSE); public npm release remains blocked while `private: true`. See the [integration and migration guide](docs/guide.md) for ownership, SSR imports, accessibility, GLB/glTF, CI and release requirements. Generate the API with `npm run build:docs`; the embedded-scene demo covers mount/unmount and fallback behavior.
 
 Rigid-body physics is now imported from `@tunn/oxygen/physics`; other utilities remain in the root entry.
 

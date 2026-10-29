@@ -83,7 +83,7 @@
 .home-hero em, .home-cta em {
   font-style: normal;
   background: linear-gradient(135deg, #00f5a0 0%, #00d2ff 55%, #c084fc 100%);
-  -webkit-background-clip: text;
+background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 35px rgba(0, 245, 160, 0.4));
 }
@@ -412,7 +412,7 @@
   font-weight: 800;
   letter-spacing: -1px;
   background: linear-gradient(135deg, #00f5a0 0%, #00d2ff 100%);
-  -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 10px;
 }

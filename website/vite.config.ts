@@ -45,7 +45,7 @@ export default defineConfig({
     outDir: resolve(root, 'dist'),
     emptyOutDir: true,
     rollupOptions: {
-      input: Object.fromEntries(['index', 'docs', 'reference', 'examples', 'embed', 'post', 'particles', 'physics', 'router']
+      input: Object.fromEntries(['index', 'docs', 'reference', 'examples', 'embed', 'post', 'particles', 'physics', 'router', 'activetheory']
         .map((page) => [page, resolve(root, page === 'index' ? 'index.html' : `${page}/index.html`)])),
     },
   },

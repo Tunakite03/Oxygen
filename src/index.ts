@@ -34,18 +34,21 @@ export * from './assets/config';
 export * from './assets/geometry';
 export * from './assets/progress';
 export * from './assets/textures';
+export * from './assets/videoTexture';
 
 export * from './gl/fullscreen';
 export * from './gl/glui';
 export * from './gl/pipeline';
 export * from './gl/shaderLibrary';
 export * from './gl/skin';
+export * from './gl/iridescentMaterial';
 
 export * from './post/passes';
 export * from './post/postStack';
 export * from './post/shaderPass';
 export * from './post/transitionPass';
 
+export * from './particles/beadPoints';
 export * from './particles/gpuParticles';
 export * from './particles/gpuSimulation';
 export * from './particles/noise.glsl';
@@ -69,8 +72,10 @@ export * from './scroll/virtualScroll';
 
 export * from './story/scrollStory';
 export * from './story/storyScene';
+export * from './story/splineCarousel';
 
 export * from './audio/audioManager';
+export * from './audio/audioVisualizer';
 
 export * from './text/msdf';
 

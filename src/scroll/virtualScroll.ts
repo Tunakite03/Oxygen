@@ -95,7 +95,7 @@ export class VirtualScroll {
       this.inertia.y *= 0.9;
       this.target.y += this.inertia.y;
     }
-    const scale = device.mobile ? this.opts.touchScale : this.opts.scale;
+    const scale = this.scale;
     if (this.opts.limit) this.target.y = Math.min(Math.max(this.target.y, 0), this.max.y / scale);
     this.delta.y = this.block ? 0 : (reduced ? 1 : 0.5) * (this.target.y * scale - this.y);
     this.y += this.delta.y;
@@ -179,11 +179,11 @@ export class VirtualScroll {
     switch (event.key) {
       case 'Up':
       case 'ArrowUp':
-        dst = this.target.y - 150;
+        dst = this.targetY - 150;
         break;
       case 'Down':
       case 'ArrowDown':
-        dst = this.target.y + 150;
+        dst = this.targetY + 150;
         break;
       case 'Home':
         dst = 0;
@@ -192,14 +192,14 @@ export class VirtualScroll {
         dst = this.max.y;
         break;
       case 'PageUp':
-        dst = this.target.y - stage.height;
+        dst = this.targetY - stage.height;
         break;
       case 'PageDown':
-        dst = this.target.y + stage.height;
+        dst = this.targetY + stage.height;
         break;
       case ' ':
       case 'Spacebar':
-        dst = this.target.y + (event.shiftKey ? -stage.height : stage.height);
+        dst = this.targetY + (event.shiftKey ? -stage.height : stage.height);
         break;
     }
     if (dst !== null) {
@@ -208,16 +208,24 @@ export class VirtualScroll {
     }
   }
 
+  /** Output scale for the current input mode: `y` equals the internal target times this factor. */
+  private get scale(): number {
+    return device.mobile ? this.opts.touchScale : this.opts.scale;
+  }
+
+  /** Eases toward `value`, in the same units as `y` and `max.y`. */
   scrollTo(value: number, time = 800, ease = 'easeInOutCubic'): void {
-    tween(this.target, { y: value }, time, ease);
+    tween(this.target, { y: value / this.scale }, time, ease);
   }
 
+  /** Jumps the target to `value`, in the same units as `y` and `max.y`. */
   setTarget(value: number): void {
-    this.target.y = value;
+    this.target.y = value / this.scale;
   }
 
+  /** Where `y` is heading, in the same units as `y` and `max.y`. */
   get targetY(): number {
-    return this.target.y;
+    return this.target.y * this.scale;
   }
 
   reset(): void {

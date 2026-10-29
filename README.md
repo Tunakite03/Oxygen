@@ -10,16 +10,20 @@ projects supply their own content on top of it.
 
 ## Integration status
 
-Version 0.3.0-beta.0 is prepared for local package testing. Oxygen is available under the [MIT License](LICENSE); public npm release remains blocked while `private: true`. See the [integration and migration guide](docs/guide.md) for ownership, SSR imports, accessibility, GLB/glTF, CI and release requirements. Generate the API with `npm run build:docs`; the embedded-scene demo covers mount/unmount and fallback behavior.
+Version 0.3.0-beta.1 is a beta release. Oxygen is available under the [MIT License](LICENSE). See the [integration and migration guide](docs/guide.md) for ownership, SSR imports, accessibility, GLB/glTF, CI and release requirements. Generate the API with `npm run build:docs`; the embedded-scene demo covers mount/unmount and fallback behavior.
 
 Rigid-body physics is now imported from `@tunn/oxygen/physics`; other utilities remain in the root entry.
 
 ## Install
 
+After the package is published to npm, install it and its required peers with:
+
 ```sh
 npm install @tunn/oxygen three zod
 npm install @dimforge/rapier3d-compat   # only for PhysicsWorld (rigid bodies)
 ```
+
+The release workflow publishes the beta to npm's `latest` tag, so an unqualified install selects a prerelease version after publication.
 
 Peer dependencies: `three` (~0.186.1), `zod` (4.x) and, optionally, `@dimforge/rapier3d-compat` (~0.21.0), which is
 imported on demand by `PhysicsWorld.create`. three's `basis_transcoder` files are needed for KTX2 and Google's Draco
@@ -32,8 +36,7 @@ dependencies and runs the `prepare` script, which builds `dist/`:
 "dependencies": { "@tunn/oxygen": "git+https://github.com/Tunakite03/Oxygen.git#<commit>" }
 ```
 
-The repository is private, so the machine running `npm install` needs git credentials for it. For engine work against
-a site, `npm link` a local checkout, or alias `@tunn/oxygen` to `src/index.ts` in your bundler.
+For engine work against a site, `npm link` a local checkout, or alias `@tunn/oxygen` to `src/index.ts` in your bundler.
 
 ## Quick start
 

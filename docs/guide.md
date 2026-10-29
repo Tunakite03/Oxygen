@@ -1,8 +1,8 @@
 # Oxygen integration guide
 
-Oxygen 0.3.0-beta.0 is an ESM-only WebGL 2 toolkit for browser applications. Importing the root package in Node/SSR is safe; creating a renderer, starting the frame loop, or constructing browser input/audio adapters requires the browser. Node 24 and 26 are the supported development/CI runtimes. The tested peers are Three 0.186.x and Zod 4.x; rigid bodies additionally use Rapier 0.21.x.
+Oxygen 0.3.0-beta.1 is an ESM-only WebGL 2 toolkit for browser applications. Importing the root package in Node/SSR is safe; creating a renderer, starting the frame loop, or constructing browser input/audio adapters requires the browser. Node 24 and 26 are the supported development/CI runtimes. The tested peers are Three 0.186.x and Zod 4.x; rigid bodies additionally use Rapier 0.21.x.
 
-Oxygen is available under the [MIT License](../LICENSE). The manifest intentionally has `private: true`, which blocks public npm publication. Use local tarballs for integration testing within this project.
+Oxygen is available under the [MIT License](../LICENSE). Use local tarballs to verify package integration before publishing.
 
 ## Install and verify a local package
 
@@ -89,7 +89,7 @@ An asset handle owns every scene in its glTF. Do not dispose a handle while anot
 
 CI checks Node 24 and 26: typecheck, unit/regression tests, engine/demo builds, generated API, isolated package consumption and real Chromium integration. Local verification is evidence only for the runtime/browser actually run; remote matrix jobs must pass after pushing.
 
-The manual npm workflow is intentionally blocked by `npm run release:check` while `private: true`. After approval to distribute publicly, remove `private: true` and configure npm trusted publishing for repository `Tunakite03/Oxygen`, workflow `release.yml`, and GitHub environment `npm`. The workflow uses GitHub OIDC and provenance, not a stored npm token. It publishes to the `next` tag because this version is beta. The initial package creation/trusted-publisher setup, npm namespace ownership, GitHub environment protection, and public hosting configuration are account-owner prerequisites. No workflow has been dispatched and no package or demo has been published by this change.
+For the manual npm workflow, configure npm trusted publishing for repository `Tunakite03/Oxygen`, workflow `release.yml`, and GitHub environment `npm`. The workflow uses GitHub OIDC and provenance, not a stored npm token, and publishes with public access to the `latest` tag. The current version is a beta, so an unqualified `npm install @tunn/oxygen` selects a prerelease after publication. Initial package creation, npm namespace ownership, trusted-publisher setup, and GitHub environment protection are account-owner prerequisites. Verify publication with `npm view @tunn/oxygen version`.
 
 ## Migration from 0.2
 

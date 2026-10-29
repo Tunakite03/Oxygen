@@ -24,4 +24,4 @@ jobs:
       - run: npm run build:docs
       - run: npm run test:browser
       - run: npm run test:package
-      - run: npm publish --provenance --access public --tag next
+      - run: npm publish --provenance --access public --tag latest
